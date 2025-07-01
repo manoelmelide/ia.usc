@@ -6,7 +6,7 @@
 
 .mi-calendario-sin-scroll .rbc-month-row {
   flex: 1 0 auto;
-  min-height: 150px; /* Ajusta según necesidad */
+  min-height: 150px;
 }
 
 .mi-calendario-sin-scroll .rbc-row-content {
@@ -25,11 +25,7 @@
   overflow: visible;
   white-space: normal;
   line-height: 1.2;
-}
-
-/* Mejorar espaciado entre eventos */
-.rbc-event {
-  margin-bottom: 2px;
+  font-size: 0.85em;
 }
 
 /* Mostrar la hora solo en vista mes */
@@ -45,105 +41,53 @@
   display: none;
 }
 
-/* SOLUCIÓN PARA SOLAPAMIENTO EN VISTA SEMANAL */
-.rbc-time-content {
-  overflow-y: visible !important;
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
 }
 
-.rbc-time-gutter,
-.rbc-time-header-gutter {
-  position: sticky;
-  left: 0;
-  background-color: white;
-  z-index: 10;
-}
-
-.rbc-time-view .rbc-row.rbc-time-header-cell {
-  min-height: 40px; /* Asegurar espacio para múltiples eventos */
-}
-
+/* SOLUCIÓN PARA EVENTOS SUPERPUESTOS */
 .rbc-time-slot {
-  min-height: 40px; /* Altura mínima para cada franja horaria */
+  position: relative;
 }
 
 .rbc-events-container {
-  position: relative;
-  height: 100%;
-}
-
-.rbc-event {
-  position: relative; /* Cambiamos de absoluto a relativo */
-  margin-bottom: 2px;
-  width: 100%; /* Ocupar todo el ancho disponible */
-  z-index: 1;
-}
-
-/* Para eventos que ocurren al mismo tiempo */
-.rbc-event + .rbc-event {
-  margin-top: 24px; /* Espacio entre eventos superpuestos */
-}
-
-/* Ajustar altura de las filas */
-.rbc-time-content > * + * > .rbc-time-gutter,
-.rbc-time-content > * + * > .rbc-events-container {
-  height: auto !important;
-  min-height: 40px;
-}
-
-/* Nuevos estilos para el modal */
-.event-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  flex-wrap: wrap;
 }
 
-.modal-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  position: relative;
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 90%;
-  z-index: 1001;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #333;
-}
-
-.event-details {
-  margin-top: 15px;
-}
-
-.event-details p {
-  margin: 8px 0;
-  font-size: 16px;
-}
-
-/* Mejorar cursor para indicar que los eventos son clickeables */
 .rbc-event {
-  cursor: pointer;
+  flex: 1 1 auto;
+  min-width: 50%;
+  max-width: 50%;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Estilo para eventos en posición izquierda */
+.rbc-event:nth-child(odd) {
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para eventos en posición derecha */
+.rbc-event:nth-child(even) {
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Ajuste para eventos que no están superpuestos */
+.rbc-event:only-child {
+  min-width: 100%;
+  max-width: 100%;
+  border: none !important;
+}
+
+/* Mejorar apariencia para eventos superpuestos */
+.overlap-event .rbc-event-content {
+  padding: 2px;
+  font-size: 0.8em;
+}
+
+/* Ajustar altura de las franjas horarias */
+.rbc-time-slot {
+  min-height: 60px;
 }
