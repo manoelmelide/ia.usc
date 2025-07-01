@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import parse from 'date-fns/parse';
+import { parse as parseDate } from 'date-fns';
 import format from 'date-fns/format';
 import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
@@ -11,7 +11,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dateFnsLocalizer({
   format,
-  parse: (value, formatStr) => parse(value, formatStr, new Date()),
+  parse: (value, formatStr) => parseDate(value, formatStr, new Date()),
   startOfWeek,
   getDay,
   locales: { es }
@@ -22,14 +22,20 @@ export default function ExamenesCalendar() {
 
   useEffect(() => {
     Papa.parse('/examenes.csv', {
-      header: true, download: true,
+      header: true,
+      download: true,
       complete: ({ data }) => {
         const ev = data.map(r => {
           const [s, e] = r.Hora.split('-');
+          const day = parseDate(r.Dia, 'dd-MM-yyyy', new Date());
+          const start = new Date(day);
+          start.setHours(+s.split(':')[0], +s.split(':')[1]);
+          const end = new Date(day);
+          end.setHours(+e.split(':')[0], +e.split(':')[1]);
           return {
             title: `${r.Asignatura} (${r.Aula})`,
-            start: new Date(`${r.Dia}T${s}`),
-            end: new Date(`${r.Dia}T${e}`)
+            start,
+            end
           };
         });
         setEvents(ev);
