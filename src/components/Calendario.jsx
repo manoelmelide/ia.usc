@@ -24,7 +24,12 @@ const CustomEvent = ({ event, title }) => {
   return (
     <div className="rbc-event-content">
       <div>{formattedTitle}</div>
-      {/* Removimos la hora aquí - se manejará de otra manera */}
+      {/* Mostrar la hora solo en vista mes */}
+      {!event.allDay && (
+        <div className="event-time-display">
+          {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+        </div>
+      )}
     </div>
   );
 };
