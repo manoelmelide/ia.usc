@@ -1,18 +1,11 @@
 import React from 'react';
-import HorarioGrid from './components/HorarioGrid';
-import ParcialesCalendar from './components/ParcialesCalendar';
-import ExamenesCalendar from './components/ExamenesCalendar';
+import Calendario from './components/Calendario';
 
 export default function App() {
   return (
     <div style={{ padding: 20 }}>
-      <h1>✅ App montada correctamente</h1>
-      <h2>Grao en Intelixencia Artificial – USC</h2>
-      <HorarioGrid />
-      <hr />
-      <ParcialesCalendar />
-      <hr />
-      <ExamenesCalendar />
+      <h1>Grao en Intelixencia Artificial – USC</h1>
+      <Calendario />
     </div>
   );
 }
