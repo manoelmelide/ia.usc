@@ -1,32 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import parseISO from 'date-fns/parseISO';
-import format from 'date-fns/format';
-import getDay from 'date-fns/getDay';
-import enUS from 'date-fns/locale/en-US';
 import Papa from 'papaparse';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import parse from 'date-fns/parse';
+import format from 'date-fns/format';
+import startOfWeek from 'date-fns/startOfWeek';
+import getDay from 'date-fns/getDay';
+import es from 'date-fns/locale/es';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-const locales = { 'en-US': enUS };
-const localizer = dateFnsLocalizer({ format, parse: parseISO, startOfWeek: () => new Date(), getDay, locales });
+const localizer = dateFnsLocalizer({
+  format, parse: (str, fmt) => parse(str, fmt, new Date()),
+  startOfWeek, getDay, locales: { 'es': es }
+});
 
 export default function ExamenesCalendar() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     Papa.parse('/examenes.csv', {
-      header: true,
-      download: true,
+      header: true, download: true,
       complete: ({ data }) => {
-        const evs = data.map(r => {
-          const [startH,endH] = r.Hora.split('-');
+        const ev = data.map(r => {
+          const [s,e] = r.Hora.split('-');
           return {
             title: `${r.Asignatura} (${r.Aula})`,
-            start: new Date(`${r.Dia}T${startH}`),
-            end:   new Date(`${r.Dia}T${endH}`),
+            start: new Date(`${r.Dia}T${s}`),
+            end:   new Date(`${r.Dia}T${e}`)
           };
         });
-        setEvents(evs);
+        setEvents(ev);
       }
     });
   }, []);
@@ -39,7 +41,7 @@ export default function ExamenesCalendar() {
         events={events}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 600, margin: '50px' }}
+        style={{ height: 500, margin: '20px 0' }}
       />
     </div>
   );
