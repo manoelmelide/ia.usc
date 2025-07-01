@@ -27,13 +27,8 @@
   line-height: 1.2;
 }
 
-/* Mejorar espaciado entre eventos */
-.rbc-event {
-  margin-bottom: 2px;
-}
-
 /* Mostrar la hora solo en vista mes */
-.rbc-month-view .event-time-display {
+.event-time-display {
   display: block;
   font-size: 0.75em;
   opacity: 0.8;
@@ -43,4 +38,9 @@
 /* Ocultar la hora en otras vistas */
 .rbc-time-view .event-time-display {
   display: none;
+}
+
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
 }
