@@ -19,9 +19,14 @@ const CustomEvent = ({ event, title }) => {
   // Mostrar siempre la hora para eventos que no son de todo el día
   const shouldShowTime = !event.allDay;
   
+  // Determinar el formato del título según el grupo
+  const formattedTitle = event.grupo === 'todos' 
+    ? `${title} (${event.aula})`
+    : `${title} - ${event.grupo} (${event.aula})`;
+  
   return (
     <div className="rbc-event-content">
-      <div>{title}</div>
+      <div>{formattedTitle}</div>
       {shouldShowTime && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
