@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay, setHours } from 'date-fns';
+import { parseISO, format, startOfWeek, getDay } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dateFnsLocalizer({
@@ -30,23 +30,23 @@ export default function Calendario() {
       });
   }, []);
 
-  // Filtrar eventos para todas las vistas
+  // Define rango horario fijo (9:00 - 21:00) con minutos y segundos a 0
+  const minTime = new Date();
+  minTime.setHours(9, 0, 0, 0);
+
+  const maxTime = new Date();
+  maxTime.setHours(21, 0, 0, 0);
+
+  // Filtrar eventos visibles según vista y rango horario
   const visibleEvents = React.useMemo(() => {
     if (view === 'month') {
       return events.filter(ev => ev.type !== 'clase');
     }
-    // Filtrar eventos que empiezan/terminan dentro del rango visible
-    return events.filter(event => {
-      const eventEndHour = event.end.getHours();
-      const eventStartHour = event.start.getHours();
-      // Mantener eventos que solapen con el rango 9-20
-      return eventEndHour > 9 && eventStartHour < 20;
-    });
-  }, [events, view]);
-
-  // Horas fijas para min/max (formato 24h)
-  const minTime = setHours(new Date(), 9); // 9:00
-  const maxTime = setHours(new Date(), 20); // 20:00
+    // Para vistas semana y agenda, filtrar eventos que toquen el rango 9-21
+    return events.filter(event => 
+      event.end > minTime && event.start < maxTime
+    );
+  }, [events, view, minTime, maxTime]);
 
   return (
     <div>
@@ -57,16 +57,11 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
-        
         defaultView="week"
         views={['month', 'week', 'agenda']}
         onView={setView}
-        
-        // Rango horario visible (9:00 - 20:00)
         min={minTime}
         max={maxTime}
-        
-        // Formato 24h para todos los elementos
         formats={{
           timeGutterFormat: 'HH:mm', // Barra lateral
           eventTimeRangeFormat: ({ start, end }) => 
@@ -77,7 +72,6 @@ export default function Calendario() {
           dayRangeHeaderFormat: ({ start, end }) =>
             `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
         }}
-        
         style={{ height: 600 }}
       />
     </div>
