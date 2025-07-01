@@ -1,93 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import parseISO from 'date-fns/parseISO';
+import format from 'date-fns/format';
+import startOfWeek from 'date-fns/startOfWeek';
+import getDay from 'date-fns/getDay';
+import es from 'date-fns/locale/es';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-export default function HorarioGrid() {
-  const [data, setData] = useState(null);
-  const [weeks, setWeeks] = useState([]);
-  const [selWeeks, setSelWeeks] = useState([]);
-  const [group, setGroup] = useState('Todos');
+const localizer = dateFnsLocalizer({
+  format,
+  parse: parseISO,
+  startOfWeek,
+  getDay,
+  locales: { es }
+});
+
+export default function FusionCalendar() {
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    Papa.parse('/horario.csv', {
-      header: true,
-      download: true,
-      complete: ({ data }) => {
-        const clean = data.filter(r => r.Semana);
-        setData(clean);
-        const w = Array.from(new Set(clean.map(r => +r.Semana))).sort();
-        setWeeks(w);
-        setSelWeeks([w[0]]);
-      },
-      error: err => {
-        console.error('Error cargando horario.csv:', err);
-        setData([]);
-      }
+    Promise.all([
+      fetch('/horario.csv').then(r=>r.text()),
+      fetch('/parciales.csv').then(r=>r.text()),
+      fetch('/examenes.csv').then(r=>r.text()),
+    ]).then(([hTxt,pTxt,eTxt])=>{
+      const dataH = Papa.parse(hTxt, {header:true, skipEmptyLines:true}).data;
+      const dataP = Papa.parse(pTxt, {header:true, skipEmptyLines:true}).data;
+      const dataE = Papa.parse(eTxt, {header:true, skipEmptyLines:true}).data;
+      const ev = [];
+
+      // horario
+      dataH.forEach(r => {
+        const day = parseISO(r.Dia);
+        const [sh,sm] = r.HoraInicio.split(':').map(Number);
+        const [eh,em] = r.HoraFin.split(':').map(Number);
+        const start = new Date(day); start.setHours(sh, sm);
+        const end   = new Date(day); end.setHours(eh, em);
+        ev.push({ title: r.Asignatura, start, end, allDay: false });
+      });
+      // parciales + examenes
+      [...dataP, ...dataE].forEach(r => {
+        const day = parseISO(r.Dia);
+        if (r.Hora) {
+          const [sh,eh] = r.Hora.split('-');
+          ev.push({
+            title: `${r.Asignatura}`,
+            start: new Date(`${r.Dia}T${sh}`),
+            end:   new Date(`${r.Dia}T${eh}`),
+            allDay: false
+          });
+        } else {
+          ev.push({ title: r.Asignatura, start: day, end: day, allDay: true });
+        }
+      });
+
+      setEvents(ev);
     });
   }, []);
 
-  if (data === null) return <p>Cargando horario…</p>;
-  if (data.length === 0) return <p>No hay datos de horario.</p>;
-
-  const filtered = data
-    .filter(r => selWeeks.includes(+r.Semana))
-    .filter(r => group === 'Todos' || r.GrupoPracticas === group);
-
-  const horas = Array.from(new Set(
-    filtered.map(r => `${r.HoraInicio}-${r.HoraFin}`)
-  )).sort();
-  const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-
   return (
     <div>
-      <h2>Horario</h2>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-        <select
-          multiple
-          size={weeks.length}
-          value={selWeeks}
-          onChange={e =>
-            setSelWeeks(Array.from(e.target.selectedOptions, o => +o.value))
-          }
-        >
-          {weeks.map(w => (
-            <option key={w} value={w}>
-              Semana {w}
-            </option>
-          ))}
-        </select>
-        <select value={group} onChange={e => setGroup(e.target.value)}>
-          {['Todos', ...Array.from(new Set(data.map(r => r.GrupoPracticas)))].map(g => (
-            <option key={g} value={g}>
-              {g}
-            </option>
-          ))}
-        </select>
-      </div>
-      <table border="1" cellPadding="4">
-        <thead>
-          <tr>
-            <th>Hora</th>
-            {dias.map(d => (
-              <th key={d}>{d}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {horas.map(h => (
-            <tr key={h}>
-              <td>
-                <strong>{h}</strong>
-              </td>
-              {dias.map(d => {
-                const cell = filtered.find(
-                  r => `${r.HoraInicio}-${r.HoraFin}` === h && r.Dia.includes(d)
-                );
-                return <td key={d}>{cell ? `${cell.Asignatura} (${cell.Aula})` : ''}</td>;
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h2>Calendario Completo</h2>
+      <Calendar
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        allDayAccessor="allDay"
+        defaultView="week"
+        views={['week','day','agenda']}
+        style={{ height: 600, margin: '20px' }}
+      />
     </div>
   );
 }
