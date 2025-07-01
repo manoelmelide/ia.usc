@@ -30,7 +30,6 @@ export default function Calendario() {
       });
   }, []);
 
-  // Si estamos en vista 'month', filtramos las clases
   const visibleEvents = view === 'month'
     ? events.filter(ev => ev.type !== 'clase')
     : events;
@@ -44,9 +43,23 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
+
         defaultView="week"
-        views={['month', 'week', 'agenda']}
+        views={['month','week','agenda']}
         onView={v => setView(v)}
+
+        //-- horario entre 9 y 20
+        min={new Date(1970, 1, 1, 9, 0)}
+        max={new Date(1970, 1, 1, 20, 0)}
+
+        //-- formatos 24h
+        formats={{
+          timeGutterFormat: 'HH:mm',
+          hourFormat: 'HH:mm',
+          dayRangeHeaderFormat: ({ start, end }) =>
+            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
+        }}
+
         style={{ height: 600 }}
       />
     </div>
