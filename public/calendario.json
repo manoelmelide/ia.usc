@@ -3,6 +3,7 @@
     "title": "VisComp-1 (IA-03)",
     "type": "clase",
     "subtype": "todos",
+    "aula": "Aula 101",
     "start": "2025-09-08T15:30:00",
     "end": "2025-09-08T17:00:00",
     "allDay": false
@@ -10,7 +11,8 @@
   {
     "title": "VisComp-1 (IA-03)",
     "type": "clase",
-    "subtype": "G1",
+    "subtype": "grupo1",
+    "aula": "Laboratorio 3",
     "start": "2025-09-08T09:30:00",
     "end": "2025-09-08T11:00:00",
     "allDay": false
@@ -18,7 +20,8 @@
   {
     "title": "VisComp-1 (IA-03)",
     "type": "clase",
-    "subtype": "G2",
+    "subtype": "grupo2",
+    "aula": "Laboratorio 3",
     "start": "2025-09-08T11:30:00",
     "end": "2025-09-08T13:00:00",
     "allDay": false
@@ -27,6 +30,7 @@
     "title": "VisComp-1 (IA-03)",
     "type": "clase",
     "subtype": "todos",
+    "aula": "Aula Magna",
     "start": "2025-09-08T17:30:00",
     "end": "2025-09-08T20:00:00",
     "allDay": false
@@ -35,6 +39,7 @@
     "title": "Entrega Proyecto 1",
     "type": "entrega",
     "subtype": "Entrega",
+    "aula": "Online",
     "start": "2025-10-10",
     "end": "2025-10-10",
     "allDay": true
@@ -43,6 +48,7 @@
     "title": "Entrega Laboratorio 2",
     "type": "entrega",
     "subtype": "Test",
+    "aula": "Aula 204",
     "start": "2025-10-15",
     "end": "2025-10-15",
     "allDay": true
@@ -51,6 +57,7 @@
     "title": "Presentación Final",
     "type": "entrega",
     "subtype": "Exposición",
+    "aula": "Sala de Conferencias",
     "start": "2025-11-20T10:00:00",
     "end": "2025-11-20T12:00:00",
     "allDay": false
@@ -59,6 +66,7 @@
     "title": "Exame TecLin",
     "type": "examen",
     "convocatoria": "primera",
+    "aula": "Aula 301",
     "start": "2025-12-16T09:00:00",
     "end": "2025-12-16T11:00:00",
     "allDay": false
@@ -67,6 +75,7 @@
     "title": "Exame TecLin",
     "type": "examen",
     "convocatoria": "segunda",
+    "aula": "Aula 302",
     "start": "2026-01-15T09:00:00",
     "end": "2026-01-15T11:00:00",
     "allDay": false
@@ -75,6 +84,7 @@
     "title": "Exame VisComp",
     "type": "examen",
     "convocatoria": "primera",
+    "aula": "Aula 201",
     "start": "2025-12-18T15:00:00",
     "end": "2025-12-18T17:00:00",
     "allDay": false
