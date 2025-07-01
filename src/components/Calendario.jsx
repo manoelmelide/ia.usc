@@ -13,6 +13,29 @@ const localizer = dateFnsLocalizer({
   locales: { es }
 });
 
+// Componente personalizado para eventos
+const CustomEvent = ({ event, title }) => {
+  const [showTime, setShowTime] = useState(false);
+  
+  // Determinar si mostrar la hora (solo para eventos que no son de todo el día)
+  const shouldShowTime = !event.allDay && showTime;
+  
+  return (
+    <div 
+      onMouseEnter={() => setShowTime(true)}
+      onMouseLeave={() => setShowTime(false)}
+      onClick={() => setShowTime(!showTime)}
+    >
+      <div>{title}</div>
+      {shouldShowTime && (
+        <div style={{ fontSize: '0.8em', marginTop: '2px' }}>
+          {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Calendario() {
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('week');
@@ -30,12 +53,10 @@ export default function Calendario() {
       });
   }, []);
 
-  // Filtrar eventos para todas las vistas
   const visibleEvents = useMemo(() => {
     if (view === 'month') {
-      return events;  // Mostrar todos los eventos, sin filtrar por tipo
+      return events;
     }
-    // Para otras vistas, mantiene el filtro que tenías
     return events.filter(event => {
       const eventEndHour = event.end.getHours() + event.end.getMinutes() / 60;
       const eventStartHour = event.start.getHours() + event.start.getMinutes() / 60;
@@ -43,10 +64,8 @@ export default function Calendario() {
     });
   }, [events, view]);
 
-
-  // Horas fijas para min/max (sin fecha actual)
-  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);  // 9:00 fijo
-  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []); // 21:00 fijo
+  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
+  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
 
   return (
     <div>
@@ -57,18 +76,14 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
-        showAllEvents
-        className="mi-calendario-sin-scroll"
         
         defaultView="week"
         views={['month', 'week', 'agenda']}
         onView={setView}
         
-        // Rango horario fijo (9:00 - 21:00)
         min={minTime}
         max={maxTime}
         
-        // Formato 24h consistente
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) => 
@@ -78,6 +93,11 @@ export default function Calendario() {
             `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
             `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
+        }}
+        
+        // Agregar componente personalizado para eventos
+        components={{
+          event: CustomEvent
         }}
         
         style={{ height: 600 }}
