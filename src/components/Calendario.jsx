@@ -7,8 +7,6 @@ import {
   format,
   startOfWeek,
   getDay,
-  isSameDay,
-  areIntervalsOverlapping,
 } from "date-fns";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./Calendario.css";
@@ -34,30 +32,14 @@ export default function Calendario() {
           start: new Date(ev.start),
           end: new Date(ev.end),
         }));
-        // calcular solapamientos
-        const withOverlap = parsed.map((e, i) => {
-          const group = parsed.filter((o, j) => {
-            if (i === j) return false;
-            if (!isSameDay(e.start, o.start)) return false;
-            return areIntervalsOverlapping(
-              { start: e.start, end: e.end },
-              { start: o.start, end: o.end }
-            );
-          });
-          const all = [e, ...group].sort((a, b) => a.start - b.start);
-          const idx = all.findIndex((x) => x === e);
-          return {
-            ...e,
-            overlapCount: all.length,
-            overlapIndex: idx,
-          };
-        });
-        setEvents(withOverlap);
+        setEvents(parsed);
       });
   }, []);
 
   const visibleEvents =
-    view === "month" ? events.filter((ev) => ev.tipo !== "clase") : events;
+    view === "month"
+      ? events.filter((ev) => ev.tipo !== "clase")
+      : events;
 
   const minTime = new Date(1970, 1, 1, 9, 0);
   const maxTime = new Date(1970, 1, 1, 21, 0);
@@ -71,12 +53,18 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
+
         defaultView="week"
         views={["month", "week", "agenda"]}
         onView={setView}
+
         min={minTime}
         max={maxTime}
-        dayLayoutAlgorithm="no-overlap"
+
+        // permitir stacking nativo
+        stackEvents
+        eventOffset={10}
+
         formats={{
           timeGutterFormat: "HH:mm",
           eventTimeRangeFormat: ({ start, end }) =>
@@ -87,11 +75,8 @@ export default function Calendario() {
           dayRangeHeaderFormat: ({ start, end }) =>
             `${format(start, "dd/MM")} – ${format(end, "dd/MM")}`,
         }}
+
         eventPropGetter={(event) => {
-          // reparto horizontal
-          const width = `${100 / event.overlapCount}%`;
-          const left = `${(100 / event.overlapCount) * event.overlapIndex}%`;
-          // color según tipo
           let bg = "#3174ad",
             color = "black";
           if (event.tipo === "clase") {
@@ -107,10 +92,6 @@ export default function Calendario() {
           }
           return {
             style: {
-              position: "absolute",
-              width,
-              left,
-              top: 0,
               backgroundColor: bg,
               color,
               borderRadius: "3px",
@@ -120,15 +101,15 @@ export default function Calendario() {
             },
           };
         }}
+
         components={{
           event: ({ event, title }) => {
-            const simple =
-              event.overlapCount > 1 && event.tipo === "clase";
-            const text = simple
-              ? `${title} (${event.aula})`
-              : event.grupo === "todos"
-              ? `${title} (${event.aula})`
-              : `${title} - ${event.grupo} (${event.aula})`;
+            const text =
+              view === "week" && event.tipo === "clase" && event.grupo !== "todos"
+                ? `${title} (${event.aula})`
+                : event.grupo === "todos"
+                ? `${title} (${event.aula})`
+                : `${title} - ${event.grupo} (${event.aula})`;
             return (
               <div className="rbc-event-content">
                 <div>{text}</div>
@@ -142,6 +123,7 @@ export default function Calendario() {
             );
           },
         }}
+
         className="mi-calendario-sin-scroll"
         style={{ height: view === "month" ? "auto" : 600 }}
       />
