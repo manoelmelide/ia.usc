@@ -10,7 +10,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dateFnsLocalizer({
   format,
-  parse: (value, formatStr) => new Date(value), // basta con new Date(ISO)
+  parse: (value) => new Date(value),
   startOfWeek,
   getDay,
   locales: { es }
@@ -20,27 +20,37 @@ export default function ExamenesCalendar() {
   const [events, setEvents] = useState(null);
 
   useEffect(() => {
+    // 1) Prueba con fetch directa para ver si el CSV baja bien
+    fetch('/examenes.csv')
+      .then(r => {
+        console.log('fetch /examenes.csv status:', r.status);
+        return r.text();
+      })
+      .then(text => {
+        console.log('contenido CSV:\n', text);
+      });
+
+    // 2) Luego Papa.parse
     Papa.parse('/examenes.csv', {
       header: true,
       download: true,
+      skipEmptyLines: true,
       complete: ({ data }) => {
-        console.log('raw examenes.csv rows:', data);
+        console.log('Papa.parse rows:', data);
         const ev = data
-          .filter(r => r.Dia && r.Hora)     // filtra filas inválidas
+          .filter(r => r.Dia && r.Hora)
           .map(r => {
             const [startH, endH] = r.Hora.split('-');
-            const day = new Date(r.Dia);     // ISO -> Date
+            const day = new Date(r.Dia); 
             const start = new Date(day);
-            start.setHours(+startH.split(':')[0], +startH.split(':')[1]);
+            const [sh, sm] = startH.split(':').map(Number);
+            start.setHours(sh, sm);
             const end = new Date(day);
-            end.setHours(+endH.split(':')[0], +endH.split(':')[1]);
-            return {
-              title: `${r.Asignatura} (${r.Aula})`,
-              start,
-              end
-            };
+            const [eh, em] = endH.split(':').map(Number);
+            end.setHours(eh, em);
+            return { title: `${r.Asignatura} (${r.Aula})`, start, end };
           });
-        console.log('parsed exam events:', ev);
+        console.log('parsed events:', ev);
         setEvents(ev);
       },
       error: err => {
