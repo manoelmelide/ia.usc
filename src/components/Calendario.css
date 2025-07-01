@@ -1,6 +1,6 @@
 /* src/components/Calendario.css */
 
-/* Mes */
+/* Month view tweaks */
 .mi-calendario-sin-scroll .rbc-month-view {
   display: flex;
   flex-direction: column;
@@ -14,23 +14,27 @@
   text-align: center;
   min-height: 24px;
 }
-.mi-calendario-sin-scroll .event-time-display {
+/* hora solo en month */
+.mi-calendario-sin-scroll .rbc-month-view .event-time-display {
   display: block;
   font-size: 0.75em;
   opacity: 0.8;
   margin-top: 2px;
 }
+/* ocultar hora en time view */
 .rbc-time-view .event-time-display {
   display: none;
 }
 
-/* Vista semanal: posición relativa en contenedores */
+/* asegurar contenedor relative (ya por defecto) */
 .rbc-time-view .rbc-time-content,
 .rbc-time-view .rbc-day-slot {
   position: relative;
 }
 
-/* Permite stacking sin solaparse */
-.rbc-time-view .rbc-event {
-  margin: 0;
+/* padding interno de evento */
+.rbc-event-content {
+  padding: 2px 5px;
+  white-space: normal;
+  line-height: 1.2;
 }
