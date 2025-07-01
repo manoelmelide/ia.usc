@@ -1,0 +1,39 @@
+/* src/components/Calendario.css */
+.mi-calendario-sin-scroll .rbc-month-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.mi-calendario-sin-scroll .rbc-month-row {
+  flex: 1 0 auto;
+  min-height: 150px; /* Ajusta según necesidad */
+}
+
+.mi-calendario-sin-scroll .rbc-row-content {
+  position: relative;
+  z-index: 4;
+}
+
+.mi-calendario-sin-scroll .rbc-date-cell {
+  padding: 4px;
+  text-align: center;
+  min-height: 24px;
+}
+
+.rbc-event-content {
+  padding: 2px 5px;
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.event-time-display {
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
+}
