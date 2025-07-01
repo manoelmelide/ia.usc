@@ -33,15 +33,16 @@ export default function Calendario() {
   // Filtrar eventos para todas las vistas
   const visibleEvents = useMemo(() => {
     if (view === 'month') {
-      return events.filter(ev => ev.type !== 'clase');
+      return events;  // Mostrar todos los eventos, sin filtrar por tipo
     }
-    // Filtrar eventos que solapen con el rango visible (9:00 a 21:00)
+    // Para otras vistas, mantiene el filtro que tenías
     return events.filter(event => {
       const eventEndHour = event.end.getHours() + event.end.getMinutes() / 60;
       const eventStartHour = event.start.getHours() + event.start.getMinutes() / 60;
       return eventEndHour > 9 && eventStartHour < 21;
     });
   }, [events, view]);
+
 
   // Horas fijas para min/max (sin fecha actual)
   const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);  // 9:00 fijo
