@@ -7,6 +7,20 @@
     "allDay": false
   },
   {
+    "title": "VisComp-1 (IA-03)",
+    "type": "clase",
+    "start": "2025-09-08T9:30:00",
+    "end": "2025-09-08T11:00:00",
+    "allDay": false
+  },
+  {
+    "title": "VisComp-1 (IA-03)",
+    "type": "clase",
+    "start": "2025-09-08T11:30:00",
+    "end": "2025-09-08T13:00:00",
+    "allDay": false
+  },
+  {
     "title": "Entrega Proxecto 1",
     "type": "entrega",
     "start": "2025-10-10",
