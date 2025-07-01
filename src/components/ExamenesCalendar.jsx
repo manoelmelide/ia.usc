@@ -1,8 +1,7 @@
-// ExamenesCalendar.jsx
+// src/components/ExamenesCalendar.jsx
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { parse as parseDate } from 'date-fns';
 import format from 'date-fns/format';
 import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
@@ -11,7 +10,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dateFnsLocalizer({
   format,
-  parse: (value, formatStr) => parseDate(value, formatStr, new Date()),
+  parse: (value, formatStr) => new Date(value), // basta con new Date(ISO)
   startOfWeek,
   getDay,
   locales: { es }
@@ -25,19 +24,23 @@ export default function ExamenesCalendar() {
       header: true,
       download: true,
       complete: ({ data }) => {
-        const ev = data.map(r => {
-          const [s, e] = r.Hora.split('-');
-          const day = parseDate(r.Dia, 'dd-MM-yyyy', new Date());
-          const start = new Date(day);
-          start.setHours(+s.split(':')[0], +s.split(':')[1]);
-          const end = new Date(day);
-          end.setHours(+e.split(':')[0], +e.split(':')[1]);
-          return {
-            title: `${r.Asignatura} (${r.Aula})`,
-            start,
-            end
-          };
-        });
+        console.log('raw examenes.csv rows:', data);
+        const ev = data
+          .filter(r => r.Dia && r.Hora)     // filtra filas inválidas
+          .map(r => {
+            const [startH, endH] = r.Hora.split('-');
+            const day = new Date(r.Dia);     // ISO -> Date
+            const start = new Date(day);
+            start.setHours(+startH.split(':')[0], +startH.split(':')[1]);
+            const end = new Date(day);
+            end.setHours(+endH.split(':')[0], +endH.split(':')[1]);
+            return {
+              title: `${r.Asignatura} (${r.Aula})`,
+              start,
+              end
+            };
+          });
+        console.log('parsed exam events:', ev);
         setEvents(ev);
       },
       error: err => {
