@@ -1,6 +1,6 @@
 /* src/components/Calendario.css */
 
-/* Month view adjustments */
+/* Mes */
 .mi-calendario-sin-scroll .rbc-month-view {
   display: flex;
   flex-direction: column;
@@ -8,10 +8,6 @@
 .mi-calendario-sin-scroll .rbc-month-row {
   flex: 1 0 auto;
   min-height: 150px;
-}
-.mi-calendario-sin-scroll .rbc-row-content {
-  position: relative;
-  z-index: 4;
 }
 .mi-calendario-sin-scroll .rbc-date-cell {
   padding: 4px;
@@ -28,13 +24,13 @@
   display: none;
 }
 
-/* Weekly view: container must be relative to position absolute children */
-.rbc-time-view .rbc-day-slot,
-.rbc-time-view .rbc-day-bg {
+/* Vista semanal: posición relativa en contenedores */
+.rbc-time-view .rbc-time-content,
+.rbc-time-view .rbc-day-slot {
   position: relative;
 }
 
-/* Ensure events stack vertically if same slot */
+/* Permite stacking sin solaparse */
 .rbc-time-view .rbc-event {
   margin: 0;
 }
