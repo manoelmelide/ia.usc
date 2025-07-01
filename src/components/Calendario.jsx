@@ -57,6 +57,8 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
+        showAllEvents
+        className="mi-calendario-sin-scroll"
         
         defaultView="week"
         views={['month', 'week', 'agenda']}
