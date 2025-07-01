@@ -40,6 +40,11 @@
   display: none;
 }
 
+.rbc-time-view .rbc-event {
+  width: 100% !important;
+  margin-bottom: 2px;
+}
+
 /* Mejorar espaciado entre eventos */
 .rbc-event {
   margin-bottom: 2px;
