@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay } from 'date-fns';
+import { parseISO, format, startOfWeek, getDay, setHours } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dateFnsLocalizer({
@@ -15,7 +15,7 @@ const localizer = dateFnsLocalizer({
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);
-  const [view, setView]     = useState('week');
+  const [view, setView] = useState('week');
 
   useEffect(() => {
     fetch('/calendario.json')
@@ -24,15 +24,29 @@ export default function Calendario() {
         const parsed = data.map(ev => ({
           ...ev,
           start: new Date(ev.start),
-          end:   new Date(ev.end)
+          end: new Date(ev.end)
         }));
         setEvents(parsed);
       });
   }, []);
 
-  const visibleEvents = view === 'month'
-    ? events.filter(ev => ev.type !== 'clase')
-    : events;
+  // Filtrar eventos para todas las vistas
+  const visibleEvents = React.useMemo(() => {
+    if (view === 'month') {
+      return events.filter(ev => ev.type !== 'clase');
+    }
+    // Filtrar eventos que empiezan/terminan dentro del rango visible
+    return events.filter(event => {
+      const eventEndHour = event.end.getHours();
+      const eventStartHour = event.start.getHours();
+      // Mantener eventos que solapen con el rango 9-20
+      return eventEndHour > 9 && eventStartHour < 20;
+    });
+  }, [events, view]);
+
+  // Horas fijas para min/max (formato 24h)
+  const minTime = setHours(new Date(), 9); // 9:00
+  const maxTime = setHours(new Date(), 20); // 20:00
 
   return (
     <div>
@@ -43,23 +57,27 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
-
+        
         defaultView="week"
-        views={['month','week','agenda']}
-        onView={v => setView(v)}
-
-        //-- horario entre 9 y 20
-        min={new Date(1970, 1, 1, 9, 0)}
-        max={new Date(1970, 1, 1, 20, 0)}
-
-        //-- formatos 24h
+        views={['month', 'week', 'agenda']}
+        onView={setView}
+        
+        // Rango horario visible (9:00 - 20:00)
+        min={minTime}
+        max={maxTime}
+        
+        // Formato 24h para todos los elementos
         formats={{
-          timeGutterFormat: 'HH:mm',
-          hourFormat: 'HH:mm',
+          timeGutterFormat: 'HH:mm', // Barra lateral
+          eventTimeRangeFormat: ({ start, end }) => 
+            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`, // Eventos
+          agendaTimeFormat: 'HH:mm', // Vista agenda
+          agendaTimeRangeFormat: ({ start, end }) => 
+            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
             `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
         }}
-
+        
         style={{ height: 600 }}
       />
     </div>
