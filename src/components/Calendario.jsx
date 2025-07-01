@@ -14,20 +14,13 @@ const localizer = dateFnsLocalizer({
   locales: { es }
 });
 
-// Componente personalizado para eventos
+// Componente personalizado para eventos MODIFICADO
 const CustomEvent = ({ event, title }) => {
-  const [showTime, setShowTime] = useState(false);
-  
-  // Determinar si mostrar la hora (solo para eventos que no son de todo el día)
-  const shouldShowTime = !event.allDay && showTime;
+  // Mostrar siempre la hora para eventos que no son de todo el día
+  const shouldShowTime = !event.allDay;
   
   return (
-    <div 
-      onMouseEnter={() => setShowTime(true)}
-      onMouseLeave={() => setShowTime(false)}
-      onClick={() => setShowTime(!showTime)}
-      className="rbc-event-content"
-    >
+    <div className="rbc-event-content">
       <div>{title}</div>
       {shouldShowTime && (
         <div className="event-time-display">
