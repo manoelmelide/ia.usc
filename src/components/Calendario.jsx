@@ -29,15 +29,13 @@ export default function Calendario() {
     fetch("/calendario.json")
       .then((r) => r.json())
       .then((data) => {
-        // Parse dates
         const parsed = data.map((ev) => ({
           ...ev,
           start: new Date(ev.start),
           end: new Date(ev.end),
         }));
-        // Compute overlap groups
+        // calcular solapamientos
         const withOverlap = parsed.map((e, i) => {
-          // find all events that overlap with e on same day
           const group = parsed.filter((o, j) => {
             if (i === j) return false;
             if (!isSameDay(e.start, o.start)) return false;
@@ -46,27 +44,21 @@ export default function Calendario() {
               { start: o.start, end: o.end }
             );
           });
-          const all = [e, ...group].sort(
-            (a, b) => a.start.getTime() - b.start.getTime()
-          );
-          const index = all.findIndex((x) => x === e);
+          const all = [e, ...group].sort((a, b) => a.start - b.start);
+          const idx = all.findIndex((x) => x === e);
           return {
             ...e,
             overlapCount: all.length,
-            overlapIndex: index,
+            overlapIndex: idx,
           };
         });
         setEvents(withOverlap);
       });
   }, []);
 
-  // Filter clases out of month view
   const visibleEvents =
-    view === "month"
-      ? events.filter((ev) => ev.tipo !== "clase")
-      : events;
+    view === "month" ? events.filter((ev) => ev.tipo !== "clase") : events;
 
-  // time range
   const minTime = new Date(1970, 1, 1, 9, 0);
   const maxTime = new Date(1970, 1, 1, 21, 0);
 
@@ -79,16 +71,12 @@ export default function Calendario() {
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
-
         defaultView="week"
         views={["month", "week", "agenda"]}
         onView={setView}
-
         min={minTime}
         max={maxTime}
-
         dayLayoutAlgorithm="no-overlap"
-
         formats={{
           timeGutterFormat: "HH:mm",
           eventTimeRangeFormat: ({ start, end }) =>
@@ -99,12 +87,11 @@ export default function Calendario() {
           dayRangeHeaderFormat: ({ start, end }) =>
             `${format(start, "dd/MM")} – ${format(end, "dd/MM")}`,
         }}
-
         eventPropGetter={(event) => {
-          // Compute style based on overlap index/count
+          // reparto horizontal
           const width = `${100 / event.overlapCount}%`;
           const left = `${(100 / event.overlapCount) * event.overlapIndex}%`;
-          // background color as before
+          // color según tipo
           let bg = "#3174ad",
             color = "black";
           if (event.tipo === "clase") {
@@ -133,12 +120,10 @@ export default function Calendario() {
             },
           };
         }}
-
         components={{
           event: ({ event, title }) => {
             const simple =
-              event.overlapCount > 1 &&
-              event.tipo === "clase";
+              event.overlapCount > 1 && event.tipo === "clase";
             const text = simple
               ? `${title} (${event.aula})`
               : event.grupo === "todos"
@@ -157,7 +142,6 @@ export default function Calendario() {
             );
           },
         }}
-
         className="mi-calendario-sin-scroll"
         style={{ height: view === "month" ? "auto" : 600 }}
       />
