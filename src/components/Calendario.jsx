@@ -15,6 +15,7 @@ const localizer = dateFnsLocalizer({
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);
+  const [view, setView]     = useState('week');
 
   useEffect(() => {
     fetch('/calendario.json')
@@ -22,24 +23,30 @@ export default function Calendario() {
       .then(data => {
         const parsed = data.map(ev => ({
           ...ev,
-          start: ev.allDay ? new Date(ev.start) : new Date(ev.start),
-          end: ev.allDay ? new Date(ev.end) : new Date(ev.end)
+          start: new Date(ev.start),
+          end:   new Date(ev.end)
         }));
         setEvents(parsed);
       });
   }, []);
+
+  // Si estamos en vista 'month', filtramos las clases
+  const visibleEvents = view === 'month'
+    ? events.filter(ev => ev.type !== 'clase')
+    : events;
 
   return (
     <div>
       <h2>Calendario Académico</h2>
       <Calendar
         localizer={localizer}
-        events={events}
+        events={visibleEvents}
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
         defaultView="week"
-        views={['week', 'agenda']}
+        views={['month', 'week', 'agenda']}
+        onView={v => setView(v)}
         style={{ height: 600 }}
       />
     </div>
