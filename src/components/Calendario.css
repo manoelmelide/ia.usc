@@ -1,29 +1,80 @@
 /* src/components/Calendario.css */
-
-/* Vista mensual */
 .mi-calendario-sin-scroll .rbc-month-view {
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
+
 .mi-calendario-sin-scroll .rbc-month-row {
-  flex: 1 0 auto; min-height: 150px;
+  flex: 1 0 auto;
+  min-height: 150px;
 }
+
+.mi-calendario-sin-scroll .rbc-row-content {
+  position: relative;
+  z-index: 4;
+}
+
 .mi-calendario-sin-scroll .rbc-date-cell {
-  padding:4px; text-align:center; min-height:24px;
+  padding: 4px;
+  text-align: center;
+  min-height: 24px;
 }
-/* hora solo en month */
-.mi-calendario-sin-scroll .rbc-month-view .event-time-display {
-  display:block; font-size:.75em; opacity:.8; margin-top:2px;
-}
-.rbc-time-view .event-time-display { display:none; }
 
-/* Vista semanal: contenedores relativos para los absolutos */
-.rbc-time-view .rbc-time-content,
-.rbc-time-view .rbc-day-slot { position: relative; }
-
-/* Quita márgenes en eventos (ya se posicionan absolute) */
-.rbc-time-view .rbc-event { margin: 0; }
-
-/* Contenido de evento */
 .rbc-event-content {
-  padding:2px 5px; white-space:normal; line-height:1.2;
+  padding: 2px 5px;
+  overflow: visible;
+  white-space: normal;
+  line-height: 1.2;
+  font-size: 0.85em;
+}
+
+/* Mostrar la hora solo en vista mes */
+.rbc-month-view .event-time-display {
+  display: block;
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Ocultar la hora en otras vistas */
+.rbc-time-view .event-time-display {
+  display: none;
+}
+
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
+}
+
+/* SOLUCIÓN PARA DIVISIÓN DE COLUMNAS */
+.rbc-time-view .rbc-events-container {
+  position: relative;
+}
+
+.rbc-time-slot {
+  position: relative;
+}
+
+/* División visual para las mitades */
+.rbc-time-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+/* Ajustar altura de las franjas horarias */
+.rbc-time-slot {
+  min-height: 40px;
+}
+
+/* En vista mes, resetear estilos de posición */
+.rbc-month-view .rbc-event {
+  position: relative !important;
+  width: 100% !important;
+  left: 0 !important;
 }
