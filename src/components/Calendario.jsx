@@ -1,55 +1,74 @@
 // src/components/Calendario.jsx
-import React, { useEffect, useState, useMemo } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay, isSameDay, isBefore, isAfter } from 'date-fns';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './Calendario.css';
+import React, { useEffect, useState } from "react";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import es from "date-fns/locale/es";
+import {
+  parseISO,
+  format,
+  startOfWeek,
+  getDay,
+  isSameDay,
+  areIntervalsOverlapping,
+} from "date-fns";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import "./Calendario.css";
 
 const localizer = dateFnsLocalizer({
   format,
   parse: parseISO,
   startOfWeek,
   getDay,
-  locales: { es }
+  locales: { es },
 });
 
 export default function Calendario() {
   const [events, setEvents] = useState([]);
-  const [view, setView]   = useState('week');
+  const [view, setView] = useState("week");
 
   useEffect(() => {
-    fetch('/calendario.json')
-      .then(r => r.json())
-      .then(data => {
-        // parse dates
-        const parsed = data.map(ev => ({
+    fetch("/calendario.json")
+      .then((r) => r.json())
+      .then((data) => {
+        // Parse dates
+        const parsed = data.map((ev) => ({
           ...ev,
           start: new Date(ev.start),
-          end:   new Date(ev.end)
+          end: new Date(ev.end),
         }));
-        // detect collisions
-        const withColl = parsed.map((e, i) => {
-          const colliding = parsed.some((o, j) => {
+        // Compute overlap groups
+        const withOverlap = parsed.map((e, i) => {
+          // find all events that overlap with e on same day
+          const group = parsed.filter((o, j) => {
             if (i === j) return false;
             if (!isSameDay(e.start, o.start)) return false;
-            return isBefore(e.start, o.end) && isBefore(o.start, e.end);
+            return areIntervalsOverlapping(
+              { start: e.start, end: e.end },
+              { start: o.start, end: o.end }
+            );
           });
-          return { ...e, colliding };
+          const all = [e, ...group].sort(
+            (a, b) => a.start.getTime() - b.start.getTime()
+          );
+          const index = all.findIndex((x) => x === e);
+          return {
+            ...e,
+            overlapCount: all.length,
+            overlapIndex: index,
+          };
         });
-        setEvents(withColl);
+        setEvents(withOverlap);
       });
   }, []);
 
-  const visibleEvents = useMemo(
-    () => view === 'month'
-      ? events.filter(ev => ev.tipo !== 'clase')
-      : events,
-    [events, view]
-  );
+  // Filter clases out of month view
+  const visibleEvents =
+    view === "month"
+      ? events.filter((ev) => ev.tipo !== "clase")
+      : events;
 
-  const minTime = useMemo(() => new Date(1970,1,1,9,0), []);
-  const maxTime = useMemo(() => new Date(1970,1,1,21,0), []);
+  // time range
+  const minTime = new Date(1970, 1, 1, 9, 0);
+  const maxTime = new Date(1970, 1, 1, 21, 0);
 
   return (
     <div>
@@ -62,8 +81,8 @@ export default function Calendario() {
         allDayAccessor="allDay"
 
         defaultView="week"
-        views={['month','week','agenda']}
-        onView={v => setView(v)}
+        views={["month", "week", "agenda"]}
+        onView={setView}
 
         min={minTime}
         max={maxTime}
@@ -71,54 +90,76 @@ export default function Calendario() {
         dayLayoutAlgorithm="no-overlap"
 
         formats={{
-          timeGutterFormat: 'HH:mm',
-          eventTimeRangeFormat: ({ start,end }) =>
-            `${format(start,'HH:mm')} - ${format(end,'HH:mm')}`,
-          agendaTimeFormat: 'HH:mm',
-          agendaTimeRangeFormat: ({ start,end }) =>
-            `${format(start,'HH:mm')} - ${format(end,'HH:mm')}`,
-          dayRangeHeaderFormat: ({ start,end }) =>
-            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`,
+          timeGutterFormat: "HH:mm",
+          eventTimeRangeFormat: ({ start, end }) =>
+            `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`,
+          agendaTimeFormat: "HH:mm",
+          agendaTimeRangeFormat: ({ start, end }) =>
+            `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`,
+          dayRangeHeaderFormat: ({ start, end }) =>
+            `${format(start, "dd/MM")} – ${format(end, "dd/MM")}`,
         }}
 
-        eventPropGetter={event => {
-          let bg='#3174ad', color='black';
-          if(event.tipo==='clase'){
-            if(event.grupo==='G1') bg='#FFD700';
-            if(event.grupo==='G2') bg='#32CD32';
-          } else if(event.tipo==='entrega'){
-            if(event.grupo==='todos') bg='#FFDAB9';
-            if(event.grupo==='G1')      bg='#FFFACD';
-            if(event.grupo==='G2')      bg='#90EE90';
-          } else if(event.tipo==='examen'){
-            bg='#FF6B6B'; color='white';
+        eventPropGetter={(event) => {
+          // Compute style based on overlap index/count
+          const width = `${100 / event.overlapCount}%`;
+          const left = `${(100 / event.overlapCount) * event.overlapIndex}%`;
+          // background color as before
+          let bg = "#3174ad",
+            color = "black";
+          if (event.tipo === "clase") {
+            if (event.grupo === "G1") bg = "#FFD700";
+            if (event.grupo === "G2") bg = "#32CD32";
+          } else if (event.tipo === "entrega") {
+            if (event.grupo === "todos") bg = "#FFDAB9";
+            if (event.grupo === "G1") bg = "#FFFACD";
+            if (event.grupo === "G2") bg = "#90EE90";
+          } else if (event.tipo === "examen") {
+            bg = "#FF6B6B";
+            color = "white";
           }
-          return { style:{ backgroundColor:bg, color, borderRadius:'3px', border:'none' } };
+          return {
+            style: {
+              position: "absolute",
+              width,
+              left,
+              top: 0,
+              backgroundColor: bg,
+              color,
+              borderRadius: "3px",
+              border: "none",
+              padding: "2px 4px",
+              boxSizing: "border-box",
+            },
+          };
         }}
 
         components={{
           event: ({ event, title }) => {
-            // si colisiona, simplificamos
-            const text = event.colliding
+            const simple =
+              event.overlapCount > 1 &&
+              event.tipo === "clase";
+            const text = simple
               ? `${title} (${event.aula})`
-              : (event.grupo==='todos'
-                  ? `${title} (${event.aula})`
-                  : `${title} - ${event.grupo} (${event.aula})`);
+              : event.grupo === "todos"
+              ? `${title} (${event.aula})`
+              : `${title} - ${event.grupo} (${event.aula})`;
             return (
               <div className="rbc-event-content">
                 <div>{text}</div>
                 {!event.allDay && (
                   <div className="event-time-display">
-                    {format(event.start,'HH:mm')} - {format(event.end,'HH:mm')}
+                    {format(event.start, "HH:mm")} -{" "}
+                    {format(event.end, "HH:mm")}
                   </div>
                 )}
               </div>
             );
-          }
+          },
         }}
 
         className="mi-calendario-sin-scroll"
-        style={{ height: view==='month' ? 'auto' : 600 }}
+        style={{ height: view === "month" ? "auto" : 600 }}
       />
     </div>
   );
