@@ -1,40 +1,29 @@
 /* src/components/Calendario.css */
 
-/* Month view tweaks */
+/* Vista mensual */
 .mi-calendario-sin-scroll .rbc-month-view {
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
 }
 .mi-calendario-sin-scroll .rbc-month-row {
-  flex: 1 0 auto;
-  min-height: 150px;
+  flex: 1 0 auto; min-height: 150px;
 }
 .mi-calendario-sin-scroll .rbc-date-cell {
-  padding: 4px;
-  text-align: center;
-  min-height: 24px;
+  padding:4px; text-align:center; min-height:24px;
 }
 /* hora solo en month */
 .mi-calendario-sin-scroll .rbc-month-view .event-time-display {
-  display: block;
-  font-size: 0.75em;
-  opacity: 0.8;
-  margin-top: 2px;
+  display:block; font-size:.75em; opacity:.8; margin-top:2px;
 }
-/* ocultar hora en time view */
-.rbc-time-view .event-time-display {
-  display: none;
-}
+.rbc-time-view .event-time-display { display:none; }
 
-/* asegurar contenedor relative (ya por defecto) */
+/* Vista semanal: contenedores relativos para los absolutos */
 .rbc-time-view .rbc-time-content,
-.rbc-time-view .rbc-day-slot {
-  position: relative;
-}
+.rbc-time-view .rbc-day-slot { position: relative; }
 
-/* padding interno de evento */
+/* Quita márgenes en eventos (ya se posicionan absolute) */
+.rbc-time-view .rbc-event { margin: 0; }
+
+/* Contenido de evento */
 .rbc-event-content {
-  padding: 2px 5px;
-  white-space: normal;
-  line-height: 1.2;
+  padding:2px 5px; white-space:normal; line-height:1.2;
 }
