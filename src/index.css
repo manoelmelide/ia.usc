@@ -16,9 +16,37 @@ th, td {
   padding: 8px 12px;
 }
 
-/* Mostrar todos los eventos en vista mes sin scroll */
-.rbc-month-view .rbc-row-content-scroll {
-  overflow-y: visible !important;
+/* Solución para mostrar todos los eventos sin scroll */
+.rbc-month-view {
+  height: auto !important;
+}
+
+.rbc-month-row {
+  min-height: 120px; /* Altura mínima para cada fila */
+  overflow: visible !important;
+}
+
+.rbc-row-bg {
+  overflow: visible !important;
+}
+
+.rbc-row-content {
+  position: relative;
+  z-index: 4;
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.rbc-row-content-scroll {
+  overflow: visible !important;
   height: auto !important;
   max-height: none !important;
+}
+
+.rbc-date-cell {
+  overflow: visible !important;
+}
+
+.rbc-row-segment {
+  overflow: visible !important;
 }
