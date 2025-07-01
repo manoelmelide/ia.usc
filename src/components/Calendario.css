@@ -1,93 +1,46 @@
 /* src/components/Calendario.css */
+
+/* Mes: sin scroll */
 .mi-calendario-sin-scroll .rbc-month-view {
   display: flex;
   flex-direction: column;
 }
-
 .mi-calendario-sin-scroll .rbc-month-row {
   flex: 1 0 auto;
   min-height: 150px;
 }
-
 .mi-calendario-sin-scroll .rbc-row-content {
   position: relative;
   z-index: 4;
 }
-
 .mi-calendario-sin-scroll .rbc-date-cell {
   padding: 4px;
   text-align: center;
   min-height: 24px;
 }
 
+/* Time view: apilar eventos sin superponer */
+.rbc-time-view .rbc-event {
+  /* deja que react-big-calendar calcule ancho/apilado */
+  margin-bottom: 2px;
+}
+
+/* Contenido de evento */
 .rbc-event-content {
   padding: 2px 5px;
   overflow: visible;
   white-space: normal;
   line-height: 1.2;
-  font-size: 0.85em;
 }
 
-/* Mostrar la hora solo en vista mes */
-.rbc-month-view .event-time-display {
+/* Mostrar hora solo en mes */
+.mi-calendario-sin-scroll .rbc-month-view .event-time-display {
   display: block;
   font-size: 0.75em;
   opacity: 0.8;
   margin-top: 2px;
 }
-
-/* Ocultar la hora en otras vistas */
+/* Ocultar hora en time view */
 .rbc-time-view .event-time-display {
   display: none;
-}
-
-/* Mejorar espaciado entre eventos */
-.rbc-event {
-  margin-bottom: 2px;
-}
-
-/* SOLUCIÓN PARA EVENTOS SUPERPUESTOS */
-.rbc-time-slot {
-  position: relative;
-}
-
-.rbc-events-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.rbc-event {
-  flex: 1 1 auto;
-  min-width: 50%;
-  max-width: 50%;
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-
-/* Estilo para eventos en posición izquierda */
-.rbc-event:nth-child(odd) {
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Estilo para eventos en posición derecha */
-.rbc-event:nth-child(even) {
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Ajuste para eventos que no están superpuestos */
-.rbc-event:only-child {
-  min-width: 100%;
-  max-width: 100%;
-  border: none !important;
-}
-
-/* Mejorar apariencia para eventos superpuestos */
-.overlap-event .rbc-event-content {
-  padding: 2px;
-  font-size: 0.8em;
-}
-
-/* Ajustar altura de las franjas horarias */
-.rbc-time-slot {
-  min-height: 60px;
 }
