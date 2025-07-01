@@ -4,6 +4,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import es from 'date-fns/locale/es';
 import { parseISO, format, startOfWeek, getDay } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './Calendario.css'; // Importa el archivo CSS específico
 
 const localizer = dateFnsLocalizer({
   format,
@@ -25,10 +26,11 @@ const CustomEvent = ({ event, title }) => {
       onMouseEnter={() => setShowTime(true)}
       onMouseLeave={() => setShowTime(false)}
       onClick={() => setShowTime(!showTime)}
+      className="rbc-event-content"
     >
       <div>{title}</div>
       {shouldShowTime && (
-        <div style={{ fontSize: '0.8em', marginTop: '2px' }}>
+        <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
         </div>
       )}
@@ -77,6 +79,8 @@ export default function Calendario() {
         endAccessor="end"
         allDayAccessor="allDay"
         showAllEvents
+        doShowMoreDrillDown={false}
+        popup={false}
         className="mi-calendario-sin-scroll"
         
         defaultView="week"
@@ -102,7 +106,8 @@ export default function Calendario() {
           event: CustomEvent
         }}
         
-        style={{ height: 600 }}
+        // Altura dinámica basada en la vista
+        style={{ height: view === 'month' ? 'auto' : 600 }}
       />
     </div>
   );
