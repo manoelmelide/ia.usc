@@ -50,3 +50,22 @@ th, td {
 .rbc-row-segment {
   overflow: visible !important;
 }
+
+/* Ocultar la hora por defecto en eventos */
+.rbc-event-time {
+  display: none;
+}
+
+/* Mostrar la hora solo en vista mes para eventos no allDay */
+.rbc-month-view .rbc-event-content .event-time-display {
+  display: block;
+  font-size: 0.75em;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Estilos para eventos allDay en vista semana */
+.rbc-allday-cell {
+  height: auto !important;
+  min-height: 24px;
+}
