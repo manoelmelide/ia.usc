@@ -1,31 +1,25 @@
 /* src/components/Calendario.css */
-
-/* Oculta scroll horizontal en month */
 .mi-calendario-sin-scroll .rbc-month-view {
   display: flex;
   flex-direction: column;
 }
+
 .mi-calendario-sin-scroll .rbc-month-row {
   flex: 1 0 auto;
-  min-height: 150px;
+  min-height: 150px; /* Ajusta según necesidad */
 }
+
 .mi-calendario-sin-scroll .rbc-row-content {
   position: relative;
   z-index: 4;
 }
+
 .mi-calendario-sin-scroll .rbc-date-cell {
   padding: 4px;
   text-align: center;
   min-height: 24px;
 }
 
-/* Eventos en time view: ancho completo y apilados */
-.rbc-time-view .rbc-event {
-  width: 100% !important;
-  margin-bottom: 2px;
-}
-
-/* Contenido de evento */
 .rbc-event-content {
   padding: 2px 5px;
   overflow: visible;
@@ -33,14 +27,65 @@
   line-height: 1.2;
 }
 
-/* Mostrar hora solo en month */
-.mi-calendario-sin-scroll .rbc-month-view .event-time-display {
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
+}
+
+/* Mostrar la hora solo en vista mes */
+.rbc-month-view .event-time-display {
   display: block;
   font-size: 0.75em;
   opacity: 0.8;
   margin-top: 2px;
 }
-/* Ocultar hora en time view */
+
+/* Ocultar la hora en otras vistas */
 .rbc-time-view .event-time-display {
   display: none;
+}
+
+/* SOLUCIÓN PARA SOLAPAMIENTO EN VISTA SEMANAL */
+.rbc-time-content {
+  overflow-y: visible !important;
+}
+
+.rbc-time-gutter,
+.rbc-time-header-gutter {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+.rbc-time-view .rbc-row.rbc-time-header-cell {
+  min-height: 40px; /* Asegurar espacio para múltiples eventos */
+}
+
+.rbc-time-slot {
+  min-height: 40px; /* Altura mínima para cada franja horaria */
+}
+
+.rbc-events-container {
+  position: relative;
+  height: 100%;
+}
+
+.rbc-event {
+  position: relative; /* Cambiamos de absoluto a relativo */
+  margin-bottom: 2px;
+  width: 100%; /* Ocupar todo el ancho disponible */
+  z-index: 1;
+}
+
+/* Para eventos que ocurren al mismo tiempo */
+.rbc-event + .rbc-event {
+  margin-top: 24px; /* Espacio entre eventos superpuestos */
+}
+
+/* Ajustar altura de las filas */
+.rbc-time-content > * + * > .rbc-time-gutter,
+.rbc-time-content > * + * > .rbc-events-container {
+  height: auto !important;
+  min-height: 40px;
 }
