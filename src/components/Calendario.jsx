@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay } from 'date-fns';
+import { parseISO, format, startOfWeek, getDay, isWithinInterval } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendario.css';
 
@@ -14,14 +14,25 @@ const localizer = dateFnsLocalizer({
   locales: { es }
 });
 
-const CustomEvent = ({ event, title }) => {
-  const formattedTitle = event.grupo === 'todos' 
+const CustomEvent = ({ event, title, slotInfo }) => {
+  // Determinar si hay eventos superpuestos
+  const hasOverlap = slotInfo?.events.some(e => 
+    e !== event && 
+    isWithinInterval(event.start, { start: e.start, end: e.end }) ||
+    isWithinInterval(event.end, { start: e.start, end: e.end }) ||
+    isWithinInterval(e.start, { start: event.start, end: event.end })
+  );
+
+  // Formato simplificado para eventos superpuestos
+  const simplifiedTitle = hasOverlap 
     ? `${title} (${event.aula})`
-    : `${title} - ${event.grupo} (${event.aula})`;
-  
+    : event.grupo === 'todos' 
+      ? `${title} (${event.aula})`
+      : `${title} - ${event.grupo} (${event.aula})`;
+
   return (
-    <div className="rbc-event-content">
-      <div>{formattedTitle}</div>
+    <div className={`rbc-event-content ${hasOverlap ? 'overlap-event' : ''}`}>
+      <div>{simplifiedTitle}</div>
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
@@ -34,8 +45,6 @@ const CustomEvent = ({ event, title }) => {
 export default function Calendario() {
   const [events, setEvents] = useState([]);
   const [view, setView] = useState('week');
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetch('/calendario.json')
@@ -56,6 +65,7 @@ export default function Calendario() {
     }
     return events.filter(event => {
       if (event.allDay) return true;
+      
       const eventEndHour = event.end.getHours() + event.end.getMinutes() / 60;
       const eventStartHour = event.start.getHours() + event.start.getMinutes() / 60;
       return eventEndHour > 9 && eventStartHour < 21;
@@ -70,13 +80,20 @@ export default function Calendario() {
     let color = 'black';
     
     if (event.tipo === 'clase') {
-      if (event.grupo === 'G1') backgroundColor = '#FFD700';
-      else if (event.grupo === 'G2') backgroundColor = '#32CD32';
+      if (event.grupo === 'G1') {
+        backgroundColor = '#FFD700';
+      } else if (event.grupo === 'G2') {
+        backgroundColor = '#32CD32';
+      }
     } 
     else if (event.tipo === 'entrega') {
-      if (event.grupo === 'todos') backgroundColor = '#FFDAB9';
-      else if (event.grupo === 'G1') backgroundColor = '#FFFACD';
-      else if (event.grupo === 'G2') backgroundColor = '#90EE90';
+      if (event.grupo === 'todos') {
+        backgroundColor = '#FFDAB9';
+      } else if (event.grupo === 'G1') {
+        backgroundColor = '#FFFACD';
+      } else if (event.grupo === 'G2') {
+        backgroundColor = '#90EE90';
+      }
     } 
     else if (event.tipo === 'examen') {
       backgroundColor = '#FF6B6B';
@@ -88,46 +105,29 @@ export default function Calendario() {
         backgroundColor,
         color,
         borderRadius: '3px',
-        border: 'none'
+        border: 'none',
+        width: '100%'
       }
     };
   };
 
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedEvent(null);
-  };
-
-  const getEventDetails = (event) => {
-    if (!event) return null;
-    
-    const details = {
-      title: event.title,
-      aula: event.aula,
-      grupo: event.grupo,
-      tipo: event.tipo
+  // Función para manejar eventos superpuestos
+  const slotPropGetter = (date) => {
+    return {
+      className: 'time-slot'
     };
-    
-    if (event.subtipo) details.subtipo = event.subtipo;
-    if (event.convocatoria) details.convocatoria = event.convocatoria;
-    if (!event.allDay) {
-      details.hora = `${format(event.start, 'HH:mm')} - ${format(event.end, 'HH:mm')}`;
-    }
-    
-    return details;
   };
 
-  const eventDetails = selectedEvent ? getEventDetails(selectedEvent) : null;
+  // Componente personalizado para contenedor de eventos
+  const EventWrapper = ({ event, children, slotInfo }) => {
+    return React.cloneElement(React.Children.only(children), {
+      slotInfo: { ...slotInfo, event }
+    });
+  };
 
   return (
     <div>
       <h2>Calendario Académico</h2>
-      
       <Calendar
         localizer={localizer}
         events={visibleEvents}
@@ -158,44 +158,15 @@ export default function Calendario() {
         }}
         
         components={{
-          event: CustomEvent
+          event: CustomEvent,
+          timeSlotWrapper: EventWrapper
         }}
         
         eventPropGetter={eventStyleGetter}
-        style={{ height: view === 'month' ? 'auto' : 600 }}
+        slotPropGetter={slotPropGetter}
         
-        // Nuevo: Manejar selección de evento
-        onSelectEvent={handleSelectEvent}
+        style={{ height: view === 'month' ? 'auto' : 600 }}
       />
-      
-      {/* Modal para mostrar detalles del evento */}
-      {showModal && eventDetails && (
-        <div className="event-modal">
-          <div className="modal-backdrop" onClick={closeModal}></div>
-          <div className="modal-content">
-            <button className="close-button" onClick={closeModal}>×</button>
-            <h3>{eventDetails.title}</h3>
-            
-            <div className="event-details">
-              <p><strong>Aula:</strong> {eventDetails.aula}</p>
-              <p><strong>Grupo:</strong> {eventDetails.grupo}</p>
-              <p><strong>Tipo:</strong> {eventDetails.tipo}</p>
-              
-              {eventDetails.subtipo && (
-                <p><strong>Subtipo:</strong> {eventDetails.subtipo}</p>
-              )}
-              
-              {eventDetails.convocatoria && (
-                <p><strong>Convocatoria:</strong> {eventDetails.convocatoria}</p>
-              )}
-              
-              {eventDetails.hora && (
-                <p><strong>Horario:</strong> {eventDetails.hora}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
