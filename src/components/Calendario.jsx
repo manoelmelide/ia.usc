@@ -40,13 +40,13 @@ export default function Calendario() {
       const eventEndHour = event.end.getHours();
       const eventStartHour = event.start.getHours();
       // Mantener eventos que solapen con el rango 9-20
-      return eventEndHour > 9 && eventStartHour < 20;
+      return eventEndHour > 9 && eventStartHour < 21;
     });
   }, [events, view]);
 
   // Horas fijas para min/max (formato 24h)
   const minTime = setHours(new Date(), 9); // 9:00
-  const maxTime = setHours(new Date(), 20); // 20:00
+  const maxTime = setHours(new Date(), 21); // 20:00
 
   return (
     <div>
