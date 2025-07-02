@@ -2,9 +2,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay, isWithinInterval } from 'date-fns';
+import { parseISO, format, startOfWeek, getDay } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './Calendario.css';
+import './Calendario.css'; // Importa el archivo CSS específico
 
 const localizer = dateFnsLocalizer({
   format,
@@ -14,25 +14,17 @@ const localizer = dateFnsLocalizer({
   locales: { es }
 });
 
-const CustomEvent = ({ event, title, slotInfo }) => {
-  // Determinar si hay eventos superpuestos
-  const hasOverlap = slotInfo?.events.some(e => 
-    e !== event && 
-    isWithinInterval(event.start, { start: e.start, end: e.end }) ||
-    isWithinInterval(event.end, { start: e.start, end: e.end }) ||
-    isWithinInterval(e.start, { start: event.start, end: event.end })
-  );
-
-  // Formato simplificado para eventos superpuestos
-  const simplifiedTitle = hasOverlap 
+// Componente personalizado para eventos
+const CustomEvent = ({ event, title }) => {
+  // Determinar el formato del título según el grupo
+  const formattedTitle = event.grupo === 'todos' 
     ? `${title} (${event.aula})`
-    : event.grupo === 'todos' 
-      ? `${title} (${event.aula})`
-      : `${title} - ${event.grupo} (${event.aula})`;
-
+    : `${title} - ${event.grupo} (${event.aula})`;
+  
   return (
-    <div className={`rbc-event-content ${hasOverlap ? 'overlap-event' : ''}`}>
-      <div>{simplifiedTitle}</div>
+    <div className="rbc-event-content">
+      <div>{formattedTitle}</div>
+      {/* Mostrar la hora solo en vista mes */}
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
@@ -64,6 +56,7 @@ export default function Calendario() {
       return events;
     }
     return events.filter(event => {
+      // Incluir eventos allDay en vista semana
       if (event.allDay) return true;
       
       const eventEndHour = event.end.getHours() + event.end.getMinutes() / 60;
@@ -75,29 +68,30 @@ export default function Calendario() {
   const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
   const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
 
+  // Función para asignar colores a los eventos
   const eventStyleGetter = (event) => {
-    let backgroundColor = '#3174ad';
-    let color = 'black';
+    let backgroundColor = '#3174ad'; // Azul por defecto (para clases todos)
+    let color = 'black'; // Color de texto
     
     if (event.tipo === 'clase') {
       if (event.grupo === 'G1') {
-        backgroundColor = '#FFD700';
+        backgroundColor = '#FFD700'; // Amarillo medio
       } else if (event.grupo === 'G2') {
-        backgroundColor = '#32CD32';
+        backgroundColor = '#32CD32'; // Verde medio
       }
     } 
     else if (event.tipo === 'entrega') {
       if (event.grupo === 'todos') {
-        backgroundColor = '#FFDAB9';
+        backgroundColor = '#FFDAB9'; // Melocotón claro
       } else if (event.grupo === 'G1') {
-        backgroundColor = '#FFFACD';
+        backgroundColor = '#FFFACD'; // Amarillo claro
       } else if (event.grupo === 'G2') {
-        backgroundColor = '#90EE90';
+        backgroundColor = '#90EE90'; // Verde claro
       }
     } 
     else if (event.tipo === 'examen') {
-      backgroundColor = '#FF6B6B';
-      color = 'white';
+      backgroundColor = '#FF6B6B'; // Rojo
+      color = 'white'; // Texto blanco para mejor contraste
     }
     
     return {
@@ -106,23 +100,9 @@ export default function Calendario() {
         color,
         borderRadius: '3px',
         border: 'none',
-        width: '100%'
+        width: '100%' // Asegurar que ocupe todo el ancho disponible
       }
     };
-  };
-
-  // Función para manejar eventos superpuestos
-  const slotPropGetter = (date) => {
-    return {
-      className: 'time-slot'
-    };
-  };
-
-  // Componente personalizado para contenedor de eventos
-  const EventWrapper = ({ event, children, slotInfo }) => {
-    return React.cloneElement(React.Children.only(children), {
-      slotInfo: { ...slotInfo, event }
-    });
   };
 
   return (
@@ -157,14 +137,15 @@ export default function Calendario() {
             `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
         }}
         
+        // Componentes personalizados
         components={{
-          event: CustomEvent,
-          timeSlotWrapper: EventWrapper
+          event: CustomEvent
         }}
         
+        // Asignador de estilos para eventos
         eventPropGetter={eventStyleGetter}
-        slotPropGetter={slotPropGetter}
         
+        // Altura dinámica basada en la vista
         style={{ height: view === 'month' ? 'auto' : 600 }}
       />
     </div>
