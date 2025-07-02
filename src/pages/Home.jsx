@@ -1,78 +1,81 @@
-/* src/pages/Home.jsx */
+// src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Calendario from '../components/Calendario';
 import './Home.css';
+import Calendario from '../components/Calendario';
+
+const ACCESS_PASSWORD = 'gestión2025';
 
 export default function Home() {
+  const [password, setPassword] = useState('');
   const [courses, setCourses] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [user, setUser] = useState('');
-  const [pass, setPass] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Carga las asignaturas desde el JSON
     fetch('/courses.json')
       .then(res => res.json())
-      .then(setCourses);
+      .then(data => setCourses(data));
   }, []);
 
   const handleLogin = e => {
     e.preventDefault();
-    // validación básica (puedes ampliar)
-    if (user && pass) navigate('/gestion');
+    if (password === ACCESS_PASSWORD) {
+      navigate('/gestion');
+    } else {
+      alert('Contraseña incorrecta');
+    }
   };
 
   return (
     <div style={{ padding: 20 }}>
       <h1>Grao en Intelixencia Artificial – USC</h1>
 
-      {/* Formulario de acceso */}
-      <form onSubmit={handleLogin} className="login-form">
-        <input
-          type="text"
-          placeholder="Usuario"
-          value={user}
-          onChange={e => setUser(e.target.value)}
-        />
+      <form className="login-form" onSubmit={handleLogin}>
         <input
           type="password"
           placeholder="Contraseña"
-          value={pass}
-          onChange={e => setPass(e.target.value)}
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
         />
         <button type="submit">Entrar</button>
       </form>
 
-      {/* Recuadros de asignaturas */}
       <div className="courses-grid">
-        {courses.map(c => (
+        {courses.map(course => (
           <div
-            key={c.id}
+            key={course.id}
             className="course-card"
-            onClick={() => setSelected(c)}
+            onClick={() =>
+              setSelectedCourse(
+                selectedCourse && selectedCourse.id === course.id
+                  ? null
+                  : course
+              )
+            }
           >
-            {c.title}
+            {course.title}
           </div>
         ))}
       </div>
 
-      {/* Información ampliada */}
-      {selected && (
+      {selectedCourse && (
         <div className="course-detail">
-          <h2>{selected.title}</h2>
-          <p>Créditos: {selected.credits}</p>
-          <p>Ponderaciones: {JSON.stringify(selected.ponderaciones)}</p>
-          <p>Sistema de evaluación: {selected.sistema_evaluacion}</p>
+          <h2>{selectedCourse.title}</h2>
+          <p><strong>Créditos:</strong> {selectedCourse.credits}</p>
+          <p><strong>Ponderaciones:</strong> {selectedCourse.weights}</p>
+          <p><strong>Sistema de evaluación:</strong> {selectedCourse.evaluation}</p>
           <p>
-            Clases: {selected.clases.teoricas ? 'Teóricas ' : ''}{' '}
-            {selected.clases.practicas ? 'Prácticas' : ''}
+            <strong>Clases obligatorias:</strong>{' '}
+            {selectedCourse.practicas ? 'Prácticas, ' : ''}
+            {selectedCourse.expositivas ? 'Expositivas' : ''}
           </p>
-          <button onClick={() => setSelected(null)}>Cerrar</button>
+          <button onClick={() => setSelectedCourse(null)}>Cerrar</button>
         </div>
       )}
 
-      {/* Calendario */}
       <Calendario />
     </div>
   );
