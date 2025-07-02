@@ -100,7 +100,7 @@ export default function Calendario() {
         left,
         position: 'absolute',
         zIndex: isSelected ? 2 : 1,
-        overflow: 'hidden'
+        overflow: 'visible'
       }
     };
   }, []);
