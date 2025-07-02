@@ -22,7 +22,7 @@
 
 .rbc-event-content {
   padding: 2px 5px;
-  overflow: hidden !important;
+  overflow: visible;
   white-space: normal;
   line-height: 1.2;
   font-size: 0.85em;
@@ -45,7 +45,7 @@
   box-sizing: border-box;
 }
 
-/* división de columnas */
+/* SOLUCIÓN PARA DIVISIÓN DE COLUMNAS */
 .rbc-time-view .rbc-events-container {
   position: relative;
 }
@@ -70,23 +70,4 @@
   position: relative !important;
   width: 100% !important;
   left: 0 !important;
-}
-
-/* clip zona de horas */
-.rbc-time-view .rbc-day-slot .rbc-events-container {
-  overflow: hidden !important;
-  position: relative;
-}
-
-/* recorta cada evento al 50% */
-.rbc-time-view .rbc-event {
-  overflow: hidden !important;
-}
-
-/* quita outline/borde azul */
-.rbc-event:focus,
-.rbc-event.rbc-selected {
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
 }
