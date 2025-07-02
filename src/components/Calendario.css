@@ -22,7 +22,7 @@
 
 .rbc-event-content {
   padding: 2px 5px;
-  overflow: hidden !important;   /* ← aquí */
+  overflow: hidden !important;
   white-space: normal;
   line-height: 1.2;
   font-size: 0.85em;
@@ -45,7 +45,7 @@
   box-sizing: border-box;
 }
 
-/* SOLUCIÓN PARA DIVISIÓN DE COLUMNAS */
+/* división de columnas */
 .rbc-time-view .rbc-events-container {
   position: relative;
 }
@@ -72,20 +72,21 @@
   left: 0 !important;
 }
 
-/* recorta cada evento al 50% */
-.rbc-time-view .rbc-event {
-  overflow: hidden;
+/* clip zona de horas */
+.rbc-time-view .rbc-day-slot .rbc-events-container {
+  overflow: hidden !important;
+  position: relative;
 }
 
-/* quita el borde azul de evento seleccionado */
-.rbc-event.rbc-selected {
-  border: none !important;
-  box-shadow: none !important;
+/* recorta cada evento al 50% */
+.rbc-time-view .rbc-event {
+  overflow: hidden !important;
 }
-/* src/components/Calendario.css */
-/* clip slots */
-.rbc-time-view .rbc-day-slot,
-.rbc-time-view .rbc-time-slot {
-  overflow: hidden;
-  position: relative;
+
+/* quita outline/borde azul */
+.rbc-event:focus,
+.rbc-event.rbc-selected {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
