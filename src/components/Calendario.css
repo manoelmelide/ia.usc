@@ -26,9 +26,9 @@
   white-space: normal;
   line-height: 1.2;
   font-size: 0.85em;
+  box-sizing: border-box;
 }
 
-/* Mostrar la hora solo en vista mes */
 .rbc-month-view .event-time-display {
   display: block;
   font-size: 0.75em;
@@ -36,14 +36,13 @@
   margin-top: 2px;
 }
 
-/* Ocultar la hora en otras vistas */
 .rbc-time-view .event-time-display {
   display: none;
 }
 
-/* Mejorar espaciado entre eventos */
 .rbc-event {
   margin-bottom: 2px;
+  box-sizing: border-box;
 }
 
 /* SOLUCIÓN PARA DIVISIÓN DE COLUMNAS */
@@ -53,9 +52,9 @@
 
 .rbc-time-slot {
   position: relative;
+  min-height: 40px;
 }
 
-/* División visual para las mitades */
 .rbc-time-content::before {
   content: '';
   position: absolute;
@@ -67,12 +66,6 @@
   z-index: 2;
 }
 
-/* Ajustar altura de las franjas horarias */
-.rbc-time-slot {
-  min-height: 40px;
-}
-
-/* En vista mes, resetear estilos de posición */
 .rbc-month-view .rbc-event {
   position: relative !important;
   width: 100% !important;
