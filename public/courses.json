@@ -1,0 +1,85 @@
+[
+  {
+    "id": "dim_juridica",
+    "title": "Dimensión jurídica de la IA",
+    "credits": 6,
+    "ponderaciones": {
+      "examen": 70,
+      "trabajo": 30
+    },
+    "sistema_evaluacion": "Examen final, trabajo práctico",
+    "clases": {
+      "teoricas": true,
+      "practicas": true
+    }
+  },
+  {
+    "id": "aspectos_tecnocientificos",
+    "title": "Aspectos tecnocientíficos de la IA",
+    "credits": 6,
+    "ponderaciones": {
+      "examen": 60,
+      "proyecto": 40
+    },
+    "sistema_evaluacion": "Examen tipo test y proyecto",
+    "clases": {
+      "teoricas": true,
+      "practicas": true
+    }
+  },
+  {
+    "id": "aprendizaje_refuerzo",
+    "title": "Aprendizaje por refuerzo",
+    "credits": 6,
+    "ponderaciones": {
+      "examen": 50,
+      "practicas": 50
+    },
+    "sistema_evaluacion": "Examen y prácticas en laboratorio",
+    "clases": {
+      "teoricas": true,
+      "practicas": true
+    }
+  },
+  {
+    "id": "vision_computador",
+    "title": "Visión por computador",
+    "credits": 6,
+    "ponderaciones": {
+      "examen": 60,
+      "practicas": 40
+    },
+    "sistema_evaluacion": "Examen y prácticas en laboratorio",
+    "clases": {
+      "teoricas": true,
+      "practicas": true
+    }
+  },
+  {
+    "id": "tecnologias_lenguaje",
+    "title": "Tecnologías del lenguaje",
+    "credits": 6,
+    "ponderaciones": {
+      "examen": 65,
+      "proyecto": 35
+    },
+    "sistema_evaluacion": "Examen y proyecto de NLP",
+    "clases": {
+      "teoricas": true,
+      "practicas": true
+    }
+  },
+  {
+    "id": "proyecto_integrador",
+    "title": "Proyecto integrador de IA II",
+    "credits": 6,
+    "ponderaciones": {
+      "proyecto": 100
+    },
+    "sistema_evaluacion": "Proyecto final",
+    "clases": {
+      "teoricas": false,
+      "practicas": true
+    }
+  }
+]
