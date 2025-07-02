@@ -30,6 +30,8 @@
 /* Mejorar espaciado entre eventos */
 .rbc-event {
   margin-bottom: 2px;
+  /* He eliminado width: 100% para que los eventos superpuestos
+     se distribuyan en el ancho disponible */
 }
 
 /* Mostrar la hora solo en vista mes */
@@ -71,17 +73,12 @@
   height: 100%;
 }
 
-.rbc-event {
-  position: relative;
-  margin-bottom: 2px;
-  width: 100%;
-  z-index: 1;
-}
-
-/* Para eventos que ocurren al mismo tiempo */
+/* He eliminado estas reglas que forzaban apilamiento vertical */
+/*
 .rbc-event + .rbc-event {
   margin-top: 24px;
 }
+*/
 
 /* Ajustar altura de las filas */
 .rbc-time-content > * + * > .rbc-time-gutter,
