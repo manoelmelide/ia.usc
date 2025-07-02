@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import Calendario from '../components/Calendario';
 
-const ACCESS_PASSWORD = 'gestión2025';
+const ACCESS_PASSWORD = process.env.REACT_APP_ACCESS_PASSWORD;
 
 export default function Home() {
   const [password, setPassword] = useState('');
