@@ -1,14 +1,20 @@
 /* src/pages/Home.css */
 .login-form {
   display: flex;
+  align-items: center;
   gap: 8px;
   margin-bottom: 20px;
+}
+
+.login-label {
+  font-size: 0.9em;
 }
 
 .login-form input {
   padding: 8px;
   font-size: 1em;
-  flex: 1;
+  width: 200px;
+  flex: none;
 }
 
 .login-form button {
