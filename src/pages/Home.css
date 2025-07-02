@@ -1,0 +1,53 @@
+.login-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.login-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.login-form button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #3174ad;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.course-card {
+  padding: 12px;
+  background: #eee;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.course-card:hover {
+  background: #ddd;
+}
+.course-detail {
+  padding: 16px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+.course-detail h2 {
+  margin-top: 0;
+}
+.course-detail button {
+  margin-top: 12px;
+  padding: 6px 10px;
+  border: none;
+  background-color: #3174ad;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
