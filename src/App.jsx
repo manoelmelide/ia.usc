@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Gestion from './pages/Gestion';
 
+// Componente que protege rutas
 function PrivateRoute({ children, user }) {
   return user ? children : <Navigate to="/login" replace />;
 }
@@ -22,6 +23,7 @@ export default function App() {
     netlifyIdentity.on('logout', () => setUser(null));
     const current = netlifyIdentity.currentUser();
     if (current) setUser(current);
+
     return () => {
       netlifyIdentity.off('login');
       netlifyIdentity.off('logout');
@@ -46,3 +48,4 @@ export default function App() {
     </Router>
   );
 }
+
