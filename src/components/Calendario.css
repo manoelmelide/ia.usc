@@ -25,7 +25,11 @@
   overflow: visible;
   white-space: normal;
   line-height: 1.2;
-  font-size: 0.85em;
+}
+
+/* Mejorar espaciado entre eventos */
+.rbc-event {
+  margin-bottom: 2px;
 }
 
 /* Mostrar la hora solo en vista mes */
@@ -41,53 +45,47 @@
   display: none;
 }
 
-/* Mejorar espaciado entre eventos */
-.rbc-event {
-  margin-bottom: 2px;
+/* SOLUCIÓN PARA SOLAPAMIENTO EN VISTA SEMANAL */
+.rbc-time-content {
+  overflow-y: visible !important;
 }
 
-/* SOLUCIÓN PARA EVENTOS SUPERPUESTOS */
+.rbc-time-gutter,
+.rbc-time-header-gutter {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+.rbc-time-view .rbc-row.rbc-time-header-cell {
+  min-height: 40px;
+}
+
 .rbc-time-slot {
-  position: relative;
+  min-height: 40px;
 }
 
 .rbc-events-container {
-  display: flex;
-  flex-wrap: wrap;
+  position: relative;
+  height: 100%;
 }
 
 .rbc-event {
-  flex: 1 1 auto;
-  min-width: 50%;
-  max-width: 50%;
-  margin: 0 !important;
-  border-radius: 0 !important;
+  position: relative;
+  margin-bottom: 2px;
+  width: 100%;
+  z-index: 1;
 }
 
-/* Estilo para eventos en posición izquierda */
-.rbc-event:nth-child(odd) {
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+/* Para eventos que ocurren al mismo tiempo */
+.rbc-event + .rbc-event {
+  margin-top: 24px;
 }
 
-/* Estilo para eventos en posición derecha */
-.rbc-event:nth-child(even) {
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Ajuste para eventos que no están superpuestos */
-.rbc-event:only-child {
-  min-width: 100%;
-  max-width: 100%;
-  border: none !important;
-}
-
-/* Mejorar apariencia para eventos superpuestos */
-.overlap-event .rbc-event-content {
-  padding: 2px;
-  font-size: 0.8em;
-}
-
-/* Ajustar altura de las franjas horarias */
-.rbc-time-slot {
-  min-height: 60px;
+/* Ajustar altura de las filas */
+.rbc-time-content > * + * > .rbc-time-gutter,
+.rbc-time-content > * + * > .rbc-events-container {
+  height: auto !important;
+  min-height: 40px;
 }
