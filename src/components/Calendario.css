@@ -22,7 +22,7 @@
 
 .rbc-event-content {
   padding: 2px 5px;
-  overflow: visible;
+  overflow: hidden !important;   /* ← aquí */
   white-space: normal;
   line-height: 1.2;
   font-size: 0.85em;
