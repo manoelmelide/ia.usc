@@ -36,25 +36,28 @@ export default function Calendario() {
     fetch('/calendario.json')
       .then(r => r.json())
       .then(data => {
-        setEvents(data.map(ev => ({
-          ...ev,
-          start: new Date(ev.start),
-          end: new Date(ev.end)
-        })));
+        setEvents(
+          data.map(ev => ({
+            ...ev,
+            start: new Date(ev.start),
+            end: new Date(ev.end)
+          }))
+        );
       });
   }, []);
 
   const visibleEvents = useMemo(() => {
     if (view === 'month') return events;
-    return events.filter(ev =>
-      ev.allDay ||
-      (ev.end.getHours() + ev.end.getMinutes()/60 > 9 &&
-       ev.start.getHours() + ev.start.getMinutes()/60 < 21)
+    return events.filter(
+      ev =>
+        ev.allDay ||
+        (ev.end.getHours() + ev.end.getMinutes() / 60 > 9 &&
+          ev.start.getHours() + ev.start.getMinutes() / 60 < 21)
     );
   }, [events, view]);
 
-  const minTime = useMemo(() => new Date(0,0,0,9,0), []);
-  const maxTime = useMemo(() => new Date(0,0,0,21,0), []);
+  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0), []);
+  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0), []);
 
   const eventStyleGetter = useCallback((event, start, end, isSelected) => {
     let backgroundColor = '#3174ad';
@@ -100,7 +103,7 @@ export default function Calendario() {
         left,
         position: 'absolute',
         zIndex: isSelected ? 2 : 1,
-        overflow: 'visible'
+        overflow: 'hidden'
       }
     };
   }, []);
@@ -118,7 +121,7 @@ export default function Calendario() {
         popup={false}
         className="mi-calendario-sin-scroll"
         defaultView="week"
-        views={['month','week','agenda']}
+        views={['month', 'week', 'agenda']}
         onView={setView}
         min={minTime}
         max={maxTime}
@@ -130,7 +133,7 @@ export default function Calendario() {
           agendaTimeRangeFormat: ({ start, end }) =>
             `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
+            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
         }}
         components={{ event: CustomEvent }}
         eventPropGetter={eventStyleGetter}
