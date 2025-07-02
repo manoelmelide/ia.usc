@@ -1,4 +1,4 @@
-/* Gestion.jsx */
+/* src/Gestion.jsx */
 import React from 'react';
 
 export default function Gestion({ user }) {
