@@ -14,21 +14,40 @@ const localizer = dateFnsLocalizer({
   locales: { es }
 });
 
-const CustomEvent = ({ event, title }) => {
+const CustomEvent = ({ event, title, view }) => {
+  if (view === 'week') {
+    // Vista semanal: multiline
+    return (
+      <div className="rbc-event-content">
+        {/* hora (no tocar) */}
+        {!event.allDay && (
+          <div className="event-time-display">
+            {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+          </div>
+        )}
+        <div className="event-title">{title}</div>
+        {event.grupo !== 'todos' && (
+          <div className="event-group">{event.grupo}</div>
+        )}
+        <div className="event-aula">{event.aula}</div>
+      </div>
+    );
+  }
+
+  // Vista mes/agenda: formato antiguo en una línea
+  const formattedTitle =
+    event.grupo === 'todos'
+      ? `${title} (${event.aula})`
+      : `${title} - ${event.grupo} (${event.aula})`;
+
   return (
     <div className="rbc-event-content">
-      {/* hora (no modificar) */}
+      <div>{formattedTitle}</div>
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
         </div>
       )}
-      {/* nuevo formato */}
-      <div className="event-title">{title}</div>
-      {event.grupo !== 'todos' && (
-        <div className="event-group">{event.grupo}</div>
-      )}
-      <div className="event-aula">{event.aula}</div>
     </div>
   );
 };
@@ -65,7 +84,8 @@ export default function Calendario() {
   const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
 
   const eventStyleGetter = event => {
-    let bg = '#3174ad', color = 'black';
+    let bg = '#3174ad',
+      color = 'black';
     if (event.tipo === 'clase') {
       if (event.grupo === 'G1') bg = '#FFD700';
       else if (event.grupo === 'G2') bg = '#32CD32';
@@ -74,7 +94,8 @@ export default function Calendario() {
       else if (event.grupo === 'G1') bg = '#FFFACD';
       else if (event.grupo === 'G2') bg = '#90EE90';
     } else if (event.tipo === 'examen') {
-      bg = '#FF6B6B'; color = 'white';
+      bg = '#FF6B6B';
+      color = 'white';
     }
     return {
       style: {
@@ -101,7 +122,7 @@ export default function Calendario() {
         className="mi-calendario-sin-scroll"
 
         defaultView="week"
-        views={['month','week','agenda']}
+        views={['month', 'week', 'agenda']}
         onView={setView}
 
         min={minTime}
@@ -110,20 +131,22 @@ export default function Calendario() {
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) =>
-            `${format(start,'HH:mm')} - ${format(end,'HH:mm')}`,
+            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
           agendaTimeFormat: 'HH:mm',
           agendaTimeRangeFormat: ({ start, end }) =>
-            `${format(start,'HH:mm')} - ${format(end,'HH:mm')}`,
+            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`,
+            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
         }}
 
         dayLayoutAlgorithm="no-overlap"
 
-        components={{ event: CustomEvent }}
+        components={{
+          event: props => <CustomEvent {...props} view={view} />
+        }}
         eventPropGetter={eventStyleGetter}
 
-        style={{ height: view==='month' ? 'auto' : 650 }}
+        style={{ height: view === 'month' ? 'auto' : 650 }}
       />
     </div>
   );
