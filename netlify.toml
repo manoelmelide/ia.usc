@@ -1,6 +1,13 @@
+/* netlify.toml (raíz del proyecto) */
 [build]
   command = "npm run build"
   publish = "build"
+
+# Redirige todas las rutas de SPA
+[[redirects]]
+  from = "/gestion/*"
+  to = "/gestion/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"
