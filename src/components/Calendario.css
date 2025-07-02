@@ -3,17 +3,14 @@
   display: flex;
   flex-direction: column;
 }
-
 .mi-calendario-sin-scroll .rbc-month-row {
   flex: 1 0 auto;
   min-height: 150px;
 }
-
 .mi-calendario-sin-scroll .rbc-row-content {
   position: relative;
   z-index: 4;
 }
-
 .mi-calendario-sin-scroll .rbc-date-cell {
   padding: 4px;
   text-align: center;
@@ -27,11 +24,10 @@
   line-height: 1.2;
 }
 
-/* Mejorar espaciado entre eventos */
+/* Espaciado entre eventos */
 .rbc-event {
   margin-bottom: 2px;
-  /* He eliminado width: 100% para que los eventos superpuestos
-     se distribuyan en el ancho disponible */
+  /* sin width fijo para que "no-overlap" divida el espacio */
 }
 
 /* Mostrar la hora solo en vista mes */
@@ -41,17 +37,17 @@
   opacity: 0.8;
   margin-top: 2px;
 }
-
 /* Ocultar la hora en otras vistas */
 .rbc-time-view .event-time-display {
   display: none;
 }
 
-/* SOLUCIÓN PARA SOLAPAMIENTO EN VISTA SEMANAL */
+/* Permitir que el contenido se superponga sin scroll interno */
 .rbc-time-content {
   overflow-y: visible !important;
 }
 
+/* Mantener los gutters fijos */
 .rbc-time-gutter,
 .rbc-time-header-gutter {
   position: sticky;
@@ -60,29 +56,5 @@
   z-index: 10;
 }
 
-.rbc-time-view .rbc-row.rbc-time-header-cell {
-  min-height: 40px;
-}
-
-.rbc-time-slot {
-  min-height: 40px;
-}
-
-.rbc-events-container {
-  position: relative;
-  height: 100%;
-}
-
-/* He eliminado estas reglas que forzaban apilamiento vertical */
-/*
-.rbc-event + .rbc-event {
-  margin-top: 24px;
-}
-*/
-
-/* Ajustar altura de las filas */
-.rbc-time-content > * + * > .rbc-time-gutter,
-.rbc-time-content > * + * > .rbc-events-container {
-  height: auto !important;
-  min-height: 40px;
-}
+/* Quitamos las reglas de min-height personalizadas para slots y header cells
+   para que vuelvan a la altura por defecto y no alarguen demasiado la vista */
