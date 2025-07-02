@@ -15,18 +15,20 @@ const localizer = dateFnsLocalizer({
 });
 
 const CustomEvent = ({ event, title }) => {
-  const formattedTitle = event.grupo === 'todos'
-    ? `${title} (${event.aula})`
-    : `${title} ${event.grupo} (${event.aula})`;
-
   return (
     <div className="rbc-event-content">
-      <div>{formattedTitle}</div>
+      {/* hora (no modificar) */}
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
         </div>
       )}
+      {/* nuevo formato */}
+      <div className="event-title">{title}</div>
+      {event.grupo !== 'todos' && (
+        <div className="event-group">{event.grupo}</div>
+      )}
+      <div className="event-aula">{event.aula}</div>
     </div>
   );
 };
@@ -39,12 +41,13 @@ export default function Calendario() {
     fetch('/calendario.json')
       .then(r => r.json())
       .then(data => {
-        const parsed = data.map(ev => ({
-          ...ev,
-          start: new Date(ev.start),
-          end: new Date(ev.end)
-        }));
-        setEvents(parsed);
+        setEvents(
+          data.map(ev => ({
+            ...ev,
+            start: new Date(ev.start),
+            end: new Date(ev.end)
+          }))
+        );
       });
   }, []);
 
@@ -52,14 +55,14 @@ export default function Calendario() {
     if (view === 'month') return events;
     return events.filter(ev => {
       if (ev.allDay) return true;
-      const endH = ev.end.getHours() + ev.end.getMinutes()/60;
-      const startH = ev.start.getHours() + ev.start.getMinutes()/60;
+      const endH = ev.end.getHours() + ev.end.getMinutes() / 60;
+      const startH = ev.start.getHours() + ev.start.getMinutes() / 60;
       return endH > 9 && startH < 21;
     });
   }, [events, view]);
 
-  const minTime = useMemo(() => new Date(0,0,0,9,0,0), []);
-  const maxTime = useMemo(() => new Date(0,0,0,21,0,0), []);
+  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
+  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
 
   const eventStyleGetter = event => {
     let bg = '#3174ad', color = 'black';
@@ -79,7 +82,6 @@ export default function Calendario() {
         color,
         borderRadius: '3px',
         border: 'none'
-        // <-- quitamos width para que el algoritmo de no-overlap calcule correctamente
       }
     };
   };
@@ -116,13 +118,11 @@ export default function Calendario() {
             `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`,
         }}
 
-        // *** NUEVA PROPIEDAD PARA DIVIDIR EL ANCHO EN SOLAPAMIENTOS ***
         dayLayoutAlgorithm="no-overlap"
 
         components={{ event: CustomEvent }}
         eventPropGetter={eventStyleGetter}
 
-        // Altura fija para no estirar en exceso
         style={{ height: view==='month' ? 'auto' : 650 }}
       />
     </div>
