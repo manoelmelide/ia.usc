@@ -99,8 +99,9 @@ export default function Calendario() {
         backgroundColor,
         color,
         borderRadius: '3px',
-        border: 'none',
-        width: '100%' // Asegurar que ocupe todo el ancho disponible
+        border: 'none'
+        // <-- He eliminado width: '100%' para permitir que los eventos
+        //     solapados se repartan el ancho automáticamente.
       }
     };
   };
