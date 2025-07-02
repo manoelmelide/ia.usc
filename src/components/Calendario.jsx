@@ -17,7 +17,7 @@ const localizer = dateFnsLocalizer({
 const CustomEvent = ({ event, title }) => {
   const formattedTitle = event.grupo === 'todos'
     ? `${title} (${event.aula})`
-    : `${title} - ${event.grupo} (${event.aula})`;
+    : `${title} ${event.grupo} (${event.aula})`;
 
   return (
     <div className="rbc-event-content">
