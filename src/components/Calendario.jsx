@@ -15,7 +15,7 @@ const localizer = dateFnsLocalizer({
 });
 
 const CustomEvent = ({ event, title }) => {
-  const formattedTitle = ${title} (${event.aula});
+  const formattedTitle = `${title} (${event.aula})`;
   return (
     <div className="rbc-event-content">
       <div>{formattedTitle}</div>
