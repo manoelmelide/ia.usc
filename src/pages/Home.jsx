@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import Calendario from '../components/Calendario';
 
-const ACCESS_PASSWORD = 'gestión2025';
-
 export default function Home() {
   const [password, setPassword] = useState('');
   const [courses, setCourses] = useState([]);
@@ -19,14 +17,22 @@ export default function Home() {
       .then(data => setCourses(data));
   }, []);
 
-  const handleLogin = e => {
+  const handleLogin = async e => {
     e.preventDefault();
-    if (password === ACCESS_PASSWORD) {
-      navigate('/gestion');
-    } else {
-      alert('Contraseña incorrecta');
+    try {
+      const res = await fetch('/.netlify/functions/check-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const { ok } = await res.json();
+      if (ok) navigate('/gestion');
+      else alert('Contraseña incorrecta');
+    } catch {
+      alert('Error de conexión');
     }
   };
+
 
   return (
     <div style={{ padding: 20 }}>
