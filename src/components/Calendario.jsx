@@ -125,12 +125,12 @@ export default function Calendario() {
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) =>
-            ${format(start,'HH:mm')} - ${format(end,'HH:mm')},
+            `\${format(start, 'HH:mm')} - \${format(end, 'HH:mm')}`,
           agendaTimeFormat: 'HH:mm',
           agendaTimeRangeFormat: ({ start, end }) =>
-            ${format(start,'HH:mm')} - ${format(end,'HH:mm')},
+            `\${format(start, 'HH:mm')} - \${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            ${format(start,'dd/MM')} – ${format(end,'dd/MM')}
+            `\${format(start, 'dd/MM')} – \${format(end, 'dd/MM')}`
         }}
         components={{ event: CustomEvent }}
         eventPropGetter={eventStyleGetter}
