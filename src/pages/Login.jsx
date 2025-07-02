@@ -1,4 +1,4 @@
-/* Login.jsx */
+/* src/pages/Login.jsx */
 import React from 'react';
 import './Login.css';
 
