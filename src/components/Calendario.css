@@ -82,3 +82,10 @@
   border: none !important;
   box-shadow: none !important;
 }
+/* src/components/Calendario.css */
+/* clip slots */
+.rbc-time-view .rbc-day-slot,
+.rbc-time-view .rbc-time-slot {
+  overflow: hidden;
+  position: relative;
+}
