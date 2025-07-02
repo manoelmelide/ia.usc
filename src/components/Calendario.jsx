@@ -123,7 +123,7 @@ export default function Calendario() {
         eventPropGetter={eventStyleGetter}
 
         // Altura fija para no estirar en exceso
-        style={{ height: view==='month' ? 'auto' : 600 }}
+        style={{ height: view==='month' ? 'auto' : 650 }}
       />
     </div>
   );
