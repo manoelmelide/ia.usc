@@ -71,3 +71,15 @@
   width: 100% !important;
   left: 0 !important;
 }
+
+/* recorta cada evento al 50% */
+.rbc-time-view .rbc-event {
+  overflow: hidden;
+}
+
+/* quita el borde azul de evento seleccionado */
+.rbc-event.rbc-selected {
+  border: none !important;
+  box-shadow: none !important;
+}
+
