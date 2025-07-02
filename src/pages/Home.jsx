@@ -11,7 +11,6 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Carga las asignaturas desde el JSON
     fetch('/courses.json')
       .then(res => res.json())
       .then(data => setCourses(data));
@@ -33,12 +32,12 @@ export default function Home() {
     }
   };
 
-
   return (
     <div style={{ padding: 20 }}>
       <h1>Grao en Intelixencia Artificial – USC</h1>
 
       <form className="login-form" onSubmit={handleLogin}>
+        <span className="login-label">Acceso área de edición</span>
         <input
           type="password"
           placeholder="Contraseña"
