@@ -12,38 +12,43 @@ const localizer = dateFnsLocalizer({
   parse: parseISO,
   startOfWeek,
   getDay,
-  locales: { es },
+  locales: { es }
 })
 
 const CustomEvent = ({ event, view }) => {
-  const { title } = event
-  const Time = () =>
-    !event.allDay && (
+  const { tipo, grupo, aula, deadline, title, start, end, allDay } = event
+  const grpLabel = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
+
+  const TimeDisplay = () =>
+    !allDay && (
       <div className="event-time-display">
-        {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
+        {format(start, 'HH:mm')} – {format(end, 'HH:mm')}
       </div>
     )
 
   if (view === 'month') {
     return (
       <div className="rbc-event-content">
-        <Time />
-        <div>{title}</div>
+        <TimeDisplay />
+        <div>{title}{grpLabel}</div>
       </div>
     )
   }
+
   if (view === 'week') {
     return (
       <div className="rbc-event-content">
-        <div>{title}</div>
-        <Time />
+        <div>{title}{grpLabel}</div>
+        <TimeDisplay />
       </div>
     )
   }
+
+  // agenda y demás
   return (
     <div className="rbc-event-content">
-      <div>{title}</div>
-      <Time />
+      <div>{title}{grpLabel}</div>
+      <TimeDisplay />
     </div>
   )
 }
@@ -55,7 +60,7 @@ export default function Calendario() {
   const viewParam = params.get('view') || 'week'
   const dateParam = params.get('date')
     ? new Date(params.get('date'))
-    : new Date()
+    : undefined
 
   const [events, setEvents] = useState([])
 
@@ -63,36 +68,44 @@ export default function Calendario() {
     Promise.all([
       fetch('/schedule.json').then(r => r.json()),
       fetch('/deliverables.json').then(r => r.json()),
-      fetch('/extras.json').then(r => r.json()),
-    ]).then(([sched, deliv, extras]) => {
-      const ps = sched.map(ev => ({
+      fetch('/extras.json').then(r => r.json())
+    ]).then(([schedule, deliverables, extras]) => {
+      const parsedSchedule = schedule.map(ev => ({
         ...ev,
         start: new Date(ev.start),
-        end: new Date(ev.end),
+        end:   new Date(ev.end)
       }))
-      const pd = deliv.map(ev => {
+
+      const parsedDeliv = deliverables.map(ev => {
         let s, e
         if (ev.allDay) {
           if (ev.deadline) {
-            s = new Date(`${ev.fecha}T${ev.deadline}`); e = s
+            s = new Date(`${ev.fecha}T${ev.deadline}`)
+            e = s
           } else {
-            s = new Date(ev.fecha); e = new Date(ev.fecha)
+            s = new Date(ev.fecha)
+            e = new Date(ev.fecha)
           }
         } else {
-          s = new Date(ev.start); e = new Date(ev.end)
+          s = new Date(ev.start)
+          e = new Date(ev.end)
         }
         return { ...ev, start: s, end: e }
       })
-      const pe = extras.map(ev => {
+
+      const parsedExtras = extras.map(ev => {
         let s, e
         if (ev.allDay) {
-          s = new Date(ev.fecha); e = new Date(ev.fecha)
+          s = new Date(ev.fecha)
+          e = new Date(ev.fecha)
         } else {
-          s = new Date(ev.start); e = new Date(ev.end)
+          s = new Date(ev.start)
+          e = new Date(ev.end)
         }
         return { ...ev, start: s, end: e }
       })
-      setEvents([...ps, ...pd, ...pe])
+
+      setEvents([...parsedSchedule, ...parsedDeliv, ...parsedExtras])
     })
   }, [])
 
@@ -109,8 +122,40 @@ export default function Calendario() {
   const minTime = new Date(0, 0, 0, 9, 0)
   const maxTime = new Date(0, 0, 0, 21, 0)
 
+  const eventStyleGetter = ev => {
+    let bg = '#3174ad', color = 'black'
+    if (ev.tipo === 'clase') {
+      if (ev.grupo === 'G1') bg = '#FFD700'
+      else if (ev.grupo === 'G2') bg = '#32CD32'
+    } else if (ev.tipo === 'actividad') {
+      bg = ev.grupo === 'todos'
+        ? '#FFDAB9'
+        : ev.grupo === 'G1'
+          ? '#FFFACD'
+          : '#90EE90'
+    } else if (ev.tipo === 'examen') {
+      bg = '#FF6B6B'; color = 'white'
+    } else if (ev.tipo === 'gestion') {
+      bg = '#8A2BE2'; color = 'white'
+    }
+    return {
+      style: {
+        backgroundColor: bg,
+        color,
+        borderRadius: '3px',
+        border: 'none',
+        height: 'auto'
+      }
+    }
+  }
+
   const onNavigate = date => {
     navigate(`/?view=week&date=${format(date, 'yyyy-MM-dd')}`)
+  }
+
+  const onView = v => {
+    const d = dateParam || new Date()
+    navigate(`/?view=${v}&date=${format(d, 'yyyy-MM-dd')}`)
   }
 
   return (
@@ -121,8 +166,8 @@ export default function Calendario() {
         events={visibleEvents}
         view={viewParam}
         date={dateParam}
-        onView={v => navigate(`/?view=${v}&date=${format(dateParam, 'yyyy-MM-dd')}`)}
         onNavigate={onNavigate}
+        onView={onView}
         startAccessor="start"
         endAccessor="end"
         allDayAccessor="allDay"
@@ -132,17 +177,20 @@ export default function Calendario() {
         min={minTime}
         max={maxTime}
         formats={{
-          timeGutterFormat: 'HH:mm',
-          eventTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
-          agendaTimeFormat: 'HH:mm',
-          agendaTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
-          dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`,
+          timeGutterFormat:'HH:mm',
+          eventTimeRangeFormat:({ start, end })=>
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
+          agendaTimeFormat:'HH:mm',
+          agendaTimeRangeFormat:({ start, end })=>
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
+          dayRangeHeaderFormat:({ start, end })=>
+            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{ event: props => <CustomEvent {...props} view={viewParam} /> }}
+        components={{
+          event: props => <CustomEvent {...props} view={viewParam} />
+        }}
+        eventPropGetter={eventStyleGetter}
         style={{ height: viewParam === 'month' ? 'auto' : 650 }}
       />
     </div>
