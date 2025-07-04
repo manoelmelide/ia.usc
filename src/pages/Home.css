@@ -1,5 +1,9 @@
 /* src/pages/Home.css */
 
+.page-title {
+  text-align: center;
+}
+
 .login-form {
   display: flex;
   align-items: center;
