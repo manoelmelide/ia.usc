@@ -16,13 +16,11 @@ const localizer = dateFnsLocalizer({
 
 const CustomEvent = ({ event, title, view }) => {
   if (view === 'week') {
-    // Vista semanal: multiline
     return (
       <div className="rbc-event-content">
-        {/* hora (no tocar) */}
         {!event.allDay && (
           <div className="event-time-display">
-            {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
           </div>
         )}
         <div className="event-title">{title}</div>
@@ -33,19 +31,15 @@ const CustomEvent = ({ event, title, view }) => {
       </div>
     );
   }
-
-  // Vista mes/agenda: formato antiguo en una línea
-  const formattedTitle =
-    event.grupo === 'todos'
-      ? `${title} (${event.aula})`
-      : `${title} - ${event.grupo} (${event.aula})`;
-
+  const formatted = event.grupo === 'todos'
+    ? `${title} (${event.aula})`
+    : `${title} – ${event.grupo} (${event.aula})`;
   return (
     <div className="rbc-event-content">
-      <div>{formattedTitle}</div>
+      <div>{formatted}</div>
       {!event.allDay && (
         <div className="event-time-display">
-          {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+          {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
         </div>
       )}
     </div>
@@ -57,49 +51,51 @@ export default function Calendario() {
   const [view, setView] = useState('week');
 
   useEffect(() => {
-    fetch('/calendario.json')
-      .then(r => r.json())
-      .then(data => {
-        setEvents(
-          data.map(ev => ({
-            ...ev,
-            start: new Date(ev.start),
-            end: new Date(ev.end)
-          }))
-        );
-      });
+    Promise.all([
+      fetch('/schedule.json').then(r => r.json()),
+      fetch('/deliverables.json').then(r => r.json())
+    ]).then(([schedule, deliverables]) => {
+      const parsedSchedule = schedule.map(ev => ({
+        ...ev,
+        start: new Date(ev.start),
+        end:   new Date(ev.end)
+      }));
+      const parsedDeliverables = deliverables.map(ev => ({
+        ...ev,
+        start: new Date(ev.start),
+        end:   new Date(ev.end)
+      }));
+      setEvents([...parsedSchedule, ...parsedDeliverables]);
+    });
   }, []);
 
   const visibleEvents = useMemo(() => {
     if (view === 'month') return events;
     return events.filter(ev => {
       if (ev.allDay) return true;
-      const endH = ev.end.getHours() + ev.end.getMinutes() / 60;
-      const startH = ev.start.getHours() + ev.start.getMinutes() / 60;
-      return endH > 9 && startH < 21;
+      const eH = ev.end.getHours() + ev.end.getMinutes()/60;
+      const sH = ev.start.getHours() + ev.start.getMinutes()/60;
+      return eH > 9 && sH < 21;
     });
   }, [events, view]);
 
-  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
-  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
+  const minTime = useMemo(() => new Date(0,0,0,9,0,0), []);
+  const maxTime = useMemo(() => new Date(0,0,0,21,0,0), []);
 
-  const eventStyleGetter = event => {
-    let bg = '#3174ad',
-      color = 'black';
-    if (event.tipo === 'clase') {
-      if (event.grupo === 'G1') bg = '#FFD700';
-      else if (event.grupo === 'G2') bg = '#32CD32';
-    } else if (event.tipo === 'entrega') {
-      if (event.grupo === 'todos') bg = '#FFDAB9';
-      else if (event.grupo === 'G1') bg = '#FFFACD';
-      else if (event.grupo === 'G2') bg = '#90EE90';
-    } else if (event.tipo === 'examen') {
-      bg = '#FF6B6B';
+  const eventStyleGetter = ev => {
+    let backgroundColor = '#3174ad', color = 'black';
+    if (ev.tipo === 'clase') {
+      if (ev.grupo === 'G1') backgroundColor = '#FFD700';
+      else if (ev.grupo === 'G2') backgroundColor = '#32CD32';
+    } else if (ev.tipo === 'entrega') {
+      backgroundColor = ev.grupo === 'todos' ? '#FFDAB9' : ev.grupo === 'G1' ? '#FFFACD' : '#90EE90';
+    } else if (ev.tipo === 'examen') {
+      backgroundColor = '#FF6B6B';
       color = 'white';
     }
     return {
       style: {
-        backgroundColor: bg,
+        backgroundColor,
         color,
         borderRadius: '3px',
         border: 'none'
@@ -117,35 +113,26 @@ export default function Calendario() {
         endAccessor="end"
         allDayAccessor="allDay"
         showAllEvents
-        doShowMoreDrillDown={false}
         popup={false}
         className="mi-calendario-sin-scroll"
-
         defaultView="week"
-        views={['month', 'week', 'agenda']}
+        views={['month','week','agenda']}
         onView={setView}
-
         min={minTime}
         max={maxTime}
-
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
           agendaTimeFormat: 'HH:mm',
           agendaTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`,
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
+            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
         }}
-
         dayLayoutAlgorithm="no-overlap"
-
-        components={{
-          event: props => <CustomEvent {...props} view={view} />
-        }}
+        components={{ event: props => <CustomEvent {...props} view={view}/> }}
         eventPropGetter={eventStyleGetter}
-
         style={{ height: view === 'month' ? 'auto' : 650 }}
       />
     </div>
