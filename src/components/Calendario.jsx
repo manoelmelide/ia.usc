@@ -15,7 +15,6 @@ const CustomEvent = ({ event, view }) => {
   const esActividad = tipo === 'actividad'
   const grpLabel = grupo !== 'todos' ? ` – ${grupo}` : ''
 
-  // === VISTA MES ===
   if (view === 'month') {
     if (esActividad) {
       return (
@@ -40,7 +39,6 @@ const CustomEvent = ({ event, view }) => {
     }
   }
 
-  // === VISTA SEMANA ===
   if (view === 'week') {
     if (esActividad) {
       return (
@@ -66,7 +64,7 @@ const CustomEvent = ({ event, view }) => {
     }
   }
 
-  // === VISTAS AGENDA/OTRAS ===
+  // agenda y demás vistas
   return (
     <div className="rbc-event-content">
       <div>{title}</div>
