@@ -37,9 +37,13 @@ const CustomEvent = ({ event, title, view }) => {
     );
   }
 
-  const formatted = event.grupo === 'todos'
-    ? `${displayTitle} (${event.aula})`
-    : `${displayTitle} – ${event.grupo} (${event.aula})`;
+  const aulaPart = event.aula ? ` (${event.aula})` : '';
+  const formatted = event.tipo==='entrega'
+    ? displayTitle
+    : event.grupo==='todos'
+      ? title + aulaPart
+      : `${title} – ${event.grupo}` + aulaPart;
+
 
   return (
     <div className="rbc-event-content">
