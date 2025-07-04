@@ -12,6 +12,8 @@
     "courseId": "AprRef",
     "title": "Test Laboratorio 2",
     "subtipo": "Test",
+    "grupo": "G1",
+    "aula": "IA 01",
     "allDay": true,
     "date": "2025-10-15"
   },
