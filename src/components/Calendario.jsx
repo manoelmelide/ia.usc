@@ -15,6 +15,11 @@ const localizer = dateFnsLocalizer({
 });
 
 const CustomEvent = ({ event, title, view }) => {
+  const isEntrega = event.tipo === 'entrega';
+  const displayTitle = isEntrega
+    ? (event.deadline ? `${event.title} (${event.deadline})` : event.title)
+    : title;
+
   if (view === 'week') {
     return (
       <div className="rbc-event-content">
@@ -23,7 +28,7 @@ const CustomEvent = ({ event, title, view }) => {
             {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
           </div>
         )}
-        <div className="event-title">{title}</div>
+        <div className="event-title">{displayTitle}</div>
         {event.grupo !== 'todos' && (
           <div className="event-group">{event.grupo}</div>
         )}
@@ -31,9 +36,11 @@ const CustomEvent = ({ event, title, view }) => {
       </div>
     );
   }
+
   const formatted = event.grupo === 'todos'
-    ? `${title} (${event.aula})`
-    : `${title} – ${event.grupo} (${event.aula})`;
+    ? `${displayTitle} (${event.aula})`
+    : `${displayTitle} – ${event.grupo} (${event.aula})`;
+
   return (
     <div className="rbc-event-content">
       <div>{formatted}</div>
