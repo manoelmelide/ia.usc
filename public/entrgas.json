@@ -1,0 +1,35 @@
+[
+  {
+    "id": "entrega-proy1",
+    "courseId": "AprRef",
+    "title": "Entrega Proyecto 1",
+    "subtipo": "Entrega",
+    "allDay": true,
+    "date": "2025-10-10"
+  },
+  {
+    "id": "test-lab2",
+    "courseId": "AprRef",
+    "title": "Test Laboratorio 2",
+    "subtipo": "Test",
+    "allDay": true,
+    "date": "2025-10-15"
+  },
+  {
+    "id": "entrega-lab3",
+    "courseId": "VisComp",
+    "title": "Entrega Laboratorio 3",
+    "subtipo": "Test",
+    "allDay": true,
+    "date": "2025-10-16"
+  },
+  {
+    "id": "pres-final",
+    "courseId": "VisComp",
+    "title": "Presentación Final",
+    "subtipo": "Exposición",
+    "allDay": false,
+    "date": "2025-11-20",
+    "deadline": "12:00"
+  }
+]
