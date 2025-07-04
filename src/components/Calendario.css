@@ -56,6 +56,3 @@
   background-color: white;
   z-index: 10;
 }
-
-/* Quitamos las reglas de min-height personalizadas para slots y header cells
-   para que vuelvan a la altura por defecto y no alarguen demasiado la vista */
