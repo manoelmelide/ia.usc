@@ -1,6 +1,6 @@
 [
   {
-    "id": "dim_juridica",
+    "id": "DXIA",
     "title": "Dimensión jurídica de la IA",
     "credits": 6,
     "ponderaciones": {
@@ -14,7 +14,7 @@
     }
   },
   {
-    "id": "aspectos_tecnocientificos",
+    "id": "ATIA",
     "title": "Aspectos tecnocientíficos de la IA",
     "credits": 6,
     "ponderaciones": {
@@ -28,7 +28,7 @@
     }
   },
   {
-    "id": "aprendizaje_refuerzo",
+    "id": "AprRef",
     "title": "Aprendizaje por refuerzo",
     "credits": 6,
     "ponderaciones": {
@@ -42,7 +42,7 @@
     }
   },
   {
-    "id": "vision_computador",
+    "id": "VisComp",
     "title": "Visión por computador",
     "credits": 6,
     "ponderaciones": {
@@ -56,7 +56,7 @@
     }
   },
   {
-    "id": "tecnologias_lenguaje",
+    "id": "TecLin",
     "title": "Tecnologías del lenguaje",
     "credits": 6,
     "ponderaciones": {
@@ -70,7 +70,7 @@
     }
   },
   {
-    "id": "proyecto_integrador",
+    "id": "ProxInt",
     "title": "Proyecto integrador de IA II",
     "credits": 6,
     "ponderaciones": {
