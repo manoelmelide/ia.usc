@@ -42,7 +42,7 @@ const CustomEvent = ({ event, view }) => {
     return (
       <div className="rbc-event-content">
         <TimeDisplay />
-        <div>{title}{grupo && grupo !== 'todos' ? ` – ${grupo}` : ''}{aula && ` (${aula})`}</div>
+        <div>{title}{grupo && grupo !== 'todos' ? ` ${grupo}` : ''}{aula && ` (${aula})`}</div>
       </div>
     )
   }
