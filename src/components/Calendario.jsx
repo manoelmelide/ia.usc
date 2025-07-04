@@ -11,59 +11,83 @@ const localizer = dateFnsLocalizer({
 })
 
 const CustomEvent = ({ event, view }) => {
-  const { tipo, grupo, aula, deadline, title, start, end, allDay, subtipo } = event
-  const grpLabel  = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
+  const { tipo, grupo, aula, deadline, title, start, end, allDay } = event
+  const esActividad = tipo === 'actividad'
+  const esGestion   = tipo === 'gestion'
+  const grpLabel    = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
 
-  // Helper para mostrar hora si no es allDay
-  const TimeDisplay = () =>
-    !allDay && (
-      <div className="event-time-display">
-        {format(start, 'HH:mm')} – {format(end, 'HH:mm')}
-      </div>
-    )
+  // helper para mostrar hora
+  const Time = () => !allDay && (
+    <div className="event-time-display">
+      {format(start, 'HH:mm')} – {format(end, 'HH:mm')}
+    </div>
+  )
 
   // --- VISTA MES ---
   if (view === 'month') {
+    // actividades/exámenes
+    if (esActividad || tipo === 'examen') {
+      return (
+        <div className="rbc-event-content">
+          <Time />
+          <div>{title}{grpLabel}</div>
+          {deadline
+            ? <div>({deadline})</div>
+            : aula && <div>({aula})</div>}
+        </div>
+      )
+    }
+    // gestión: título multiline y hora si no es allDay
+    if (esGestion) {
+      return (
+        <div className="rbc-event-content">
+          <Time />
+          <div>{title}{grpLabel}</div>
+        </div>
+      )
+    }
+    // clases normales
     return (
       <div className="rbc-event-content">
-        {/* Mostrar hora para todos si tienen start/end */}
-        <TimeDisplay />
-
-        {/* Título + grupo */}
-        <div>{title}{grpLabel}</div>
-
-        {/* Subtítulo o aula o deadline según tipo */}
-        {tipo === 'actividad' && subtipo && <div>{subtipo}</div>}
-        {deadline
-          ? <div>Fin: {deadline}</div>
-          : (tipo !== 'actividad' && aula) 
-            ? <div>{aula}</div>
-            : null}
+        <Time />
+        <div>{title}{aula ? ` (${aula})` : ''}</div>
       </div>
     )
   }
 
   // --- VISTA SEMANA ---
   if (view === 'week') {
+    if (esActividad || tipo === 'examen') {
+      return (
+        <div className="rbc-event-content">
+          <div>{title}{grpLabel}</div>
+          {deadline
+            ? <div>Fin: {deadline}</div>
+            : aula && <div>Aula: {aula}</div>}
+        </div>
+      )
+    }
+    if (esGestion) {
+      return (
+        <div className="rbc-event-content">
+          <div>{title}{grpLabel}</div>
+          <Time />
+        </div>
+      )
+    }
     return (
       <div className="rbc-event-content">
-        <TimeDisplay />
-        <div>{title}{grpLabel}</div>
-        {tipo === 'actividad' && subtipo && <div>{subtipo}</div>}
-        {deadline
-          ? <div>Fin: {deadline}</div>
-          : aula
-            ? <div>Aula: {aula}</div>
-            : null}
+        <div>{title}{aula ? ` (${aula})` : ''}</div>
+        <Time />
       </div>
     )
   }
 
-  // --- AGENDA / OTRAS VISTAS ---
+  // --- AGENDA / OTRAS ---
   return (
     <div className="rbc-event-content">
-      <TimeDisplay />
       <div>{title}{grpLabel}</div>
+      <Time />
     </div>
   )
 }
@@ -78,40 +102,39 @@ export default function Calendario() {
       fetch('/deliverables.json').then(r => r.json()),
       fetch('/extras.json').then(r => r.json())
     ]).then(([schedule, deliverables, extras]) => {
-      const parsedSchedule = schedule.map(ev => ({
+      const ps = schedule.map(ev => ({
         ...ev,
         start: new Date(ev.start),
-        end:   new Date(ev.end)
+        end:   new Date(ev.end),
       }))
-      const parsedDeliv = deliverables.map(ev => {
-        let start, end
+      const pd = deliverables.map(ev => {
+        let s, e
         if (ev.allDay) {
           if (ev.deadline) {
-            start = new Date(`${ev.fecha}T${ev.deadline}`)
-            end   = new Date(`${ev.fecha}T${ev.deadline}`)
+            s = new Date(`${ev.fecha}T${ev.deadline}`)
+            e = new Date(`${ev.fecha}T${ev.deadline}`)
           } else {
-            start = new Date(ev.fecha)
-            end   = new Date(ev.fecha)
+            s = new Date(ev.fecha)
+            e = new Date(ev.fecha)
           }
         } else {
-          start = new Date(ev.start)
-          end   = new Date(ev.end)
+          s = new Date(ev.start)
+          e = new Date(ev.end)
         }
-        return { ...ev, start, end }
+        return { ...ev, start: s, end: e }
       })
-      const parsedExtras = extras.map(ev => {
-        let start, end
+      const pe = extras.map(ev => {
+        let s, e
         if (ev.allDay) {
-          start = new Date(ev.fecha)
-          end   = new Date(ev.fecha)
+          s = new Date(ev.fecha)
+          e = new Date(ev.fecha)
         } else {
-          start = new Date(ev.start)
-          end   = new Date(ev.end)
+          s = new Date(ev.start)
+          e = new Date(ev.end)
         }
-        return { ...ev, start, end }
+        return { ...ev, start: s, end: e }
       })
-
-      setEvents([...parsedSchedule, ...parsedDeliv, ...parsedExtras])
+      setEvents([...ps, ...pd, ...pe])
     })
   }, [])
 
