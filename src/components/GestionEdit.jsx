@@ -89,4 +89,90 @@ export default function GestionEdit() {
 
     console.log(`Array actualizado de ${category}:`, actualizado);
     alert(`Ítem ${selectedIndex + 1} de "${category}" editado.`);
-    /
+    // TODO: persistir cambios vía API backend
+  };
+
+  return (
+    <div>
+      <h2>Editar ítem existente</h2>
+      <form onSubmit={handleSubmit}>
+        {/* Selector de categoría */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label>
+            Origen:&nbsp;
+            <select value={category} onChange={e => setCategory(e.target.value)}>
+              <option value="deliverables">Deliverables</option>
+              <option value="extras">Extras</option>
+              <option value="schedule">Schedule</option>
+            </select>
+          </label>
+        </div>
+
+        {/* Selector de ítem */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label>
+            Ítem:&nbsp;
+            <select
+              value={selectedIndex ?? ''}
+              onChange={e => setSelectedIndex(e.target.value === '' ? null : Number(e.target.value))}
+            >
+              <option value="">— Selecciona —</option>
+              {items.map((it, idx) => (
+                <option key={idx} value={idx}>
+                  {it.title || `${category} #${idx + 1}`}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {/* Campos dinámicos */}
+        {selectedIndex != null && schema.map(field => (
+          <div key={field} style={{ marginBottom: '0.5rem' }}>
+            {field === 'allDay' ? (
+              <label>
+                <input
+                  type="checkbox"
+                  name="allDay"
+                  checked={formData.allDay || false}
+                  onChange={handleChange}
+                />{' '}
+                Todo el día
+              </label>
+            ) : (
+              <label style={{ display: 'block' }}>
+                {field.charAt(0).toUpperCase() + field.slice(1)}:
+                <input
+                  type={
+                    ['fecha', 'start', 'end', 'deadline'].includes(field)
+                      ? 'datetime-local'
+                      : 'text'
+                  }
+                  name={field}
+                  value={formData[field] ?? ''}
+                  onChange={handleChange}
+                  style={{ marginLeft: '0.5rem' }}
+                />
+              </label>
+            )}
+          </div>
+        ))}
+
+        <button
+          type="submit"
+          style={{
+            marginTop: '1rem',
+            padding: '8px 16px',
+            backgroundColor: '#ffc107',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            cursor: 'pointer'
+          }}
+        >
+          Guardar cambios
+        </button>
+      </form>
+    </div>
+  );
+}
