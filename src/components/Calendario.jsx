@@ -60,11 +60,36 @@ export default function Calendario() {
         start: new Date(ev.start),
         end:   new Date(ev.end)
       }));
-      const parsedDeliverables = deliverables.map(ev => ({
-        ...ev,
-        start: new Date(ev.start),
-        end:   new Date(ev.end)
-      }));
+
+      const parsedDeliverables = deliverables.map(ev => {
+        let start, end;
+        if (ev.start && ev.end) {
+          start = new Date(ev.start);
+          end   = new Date(ev.end);
+        } else {
+          const date = ev.date;
+          if (ev.allDay) {
+            start = new Date(date);
+            end   = new Date(date);
+          } else if (ev.deadline) {
+            const ts = `${date}T${ev.deadline}`;
+            start = new Date(ts);
+            end   = new Date(ts);
+          } else {
+            start = new Date(date);
+            end   = new Date(date);
+          }
+        }
+        return {
+          ...ev,
+          start,
+          end,
+          tipo: ev.tipo || 'entrega',
+          grupo: ev.grupo || 'todos',
+          aula: ev.aula || ''
+        };
+      });
+
       setEvents([...parsedSchedule, ...parsedDeliverables]);
     });
   }, []);
@@ -73,22 +98,27 @@ export default function Calendario() {
     if (view === 'month') return events;
     return events.filter(ev => {
       if (ev.allDay) return true;
-      const eH = ev.end.getHours() + ev.end.getMinutes()/60;
-      const sH = ev.start.getHours() + ev.start.getMinutes()/60;
+      const eH = ev.end.getHours() + ev.end.getMinutes() / 60;
+      const sH = ev.start.getHours() + ev.start.getMinutes() / 60;
       return eH > 9 && sH < 21;
     });
   }, [events, view]);
 
-  const minTime = useMemo(() => new Date(0,0,0,9,0,0), []);
-  const maxTime = useMemo(() => new Date(0,0,0,21,0,0), []);
+  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
+  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
 
   const eventStyleGetter = ev => {
-    let backgroundColor = '#3174ad', color = 'black';
+    let backgroundColor = '#3174ad';
+    let color = 'black';
     if (ev.tipo === 'clase') {
       if (ev.grupo === 'G1') backgroundColor = '#FFD700';
       else if (ev.grupo === 'G2') backgroundColor = '#32CD32';
     } else if (ev.tipo === 'entrega') {
-      backgroundColor = ev.grupo === 'todos' ? '#FFDAB9' : ev.grupo === 'G1' ? '#FFFACD' : '#90EE90';
+      backgroundColor = ev.grupo === 'todos'
+        ? '#FFDAB9'
+        : ev.grupo === 'G1'
+          ? '#FFFACD'
+          : '#90EE90';
     } else if (ev.tipo === 'examen') {
       backgroundColor = '#FF6B6B';
       color = 'white';
@@ -116,22 +146,22 @@ export default function Calendario() {
         popup={false}
         className="mi-calendario-sin-scroll"
         defaultView="week"
-        views={['month','week','agenda']}
+        views={['month', 'week', 'agenda']}
         onView={setView}
         min={minTime}
         max={maxTime}
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) =>
-            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
+            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
           agendaTimeFormat: 'HH:mm',
           agendaTimeRangeFormat: ({ start, end }) =>
-            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
+            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
+            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{ event: props => <CustomEvent {...props} view={view}/> }}
+        components={{ event: props => <CustomEvent {...props} view={view} /> }}
         eventPropGetter={eventStyleGetter}
         style={{ height: view === 'month' ? 'auto' : 650 }}
       />
