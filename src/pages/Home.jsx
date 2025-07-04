@@ -54,7 +54,9 @@ export default function Home() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Grao en Intelixencia Artificial – USC</h1>
+      <h1 className="page-title">
+        Grao en Intelixencia Artificial – USC
+      </h1>
 
       <form className="login-form" onSubmit={handleLogin}>
         <span className="login-label">Acceso área de edición</span>
