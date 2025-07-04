@@ -1,5 +1,4 @@
 // src/components/Calendario.jsx
-
 import React, { useEffect, useState, useMemo } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import es from 'date-fns/locale/es'
@@ -28,7 +27,6 @@ const CustomEvent = ({ event, view }) => {
         </div>
       )
     } else {
-      // examen en mes: título + aula en primera línea, hora en segunda (por CSS)
       return (
         <div className="rbc-event-content">
           <div>{title}{aula ? ` (${aula})` : ''}</div>
@@ -54,10 +52,10 @@ const CustomEvent = ({ event, view }) => {
         </div>
       )
     } else {
-      // examen en semana: keep default título + hora oculta por CSS
+      // examen en semana: mostrar título y aula igual que en mes
       return (
         <div className="rbc-event-content">
-          <div>{title}</div>
+          <div>{title}{aula ? ` (${aula})` : ''}</div>
           {!event.allDay && (
             <div className="event-time-display">
               {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
@@ -150,7 +148,7 @@ export default function Calendario() {
         color,
         borderRadius: '3px',
         border: 'none',
-        height: 'auto'        // asegura que la caja crezca para dos líneas
+        height: 'auto'
       }
     }
   }
