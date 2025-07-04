@@ -1,210 +1,155 @@
-// src/components/GestionCreate.jsx
+// src/components/GestionEdit.jsx
 import React, { useState, useEffect } from 'react';
 
 const JSON_SOURCES = {
   deliverables: '/deliverables.json',
-  extras: '/extras.json',
-  schedule: '/schedule.json',
+  extras:      '/extras.json',
+  schedule:    '/schedule.json',
 };
 
-export default function GestionCreate() {
+export default function GestionEdit() {
   const [category, setCategory] = useState('deliverables');
-  const [schema, setSchema] = useState([]);
+  const [items, setItems]       = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [schema, setSchema]     = useState([]);
   const [formData, setFormData] = useState({});
 
-  // Campos por categoría con keys internas
   const camposPorCategoria = {
-    deliverables: ['title', 'courseId', 'subtipo', 'grupo', 'aula', 'allDay', 'fecha', 'start', 'end', 'deadline'],
-    extras: ['title', 'courseId', 'allDay', 'fecha', 'start', 'end'],
-    schedule: ['title', 'grupo', 'aula', 'start', 'end'],
+    deliverables: [
+      'title', 'courseId', 'tipo', 'subtipo',
+      'grupo', 'aula', 'allDay', 'fecha',
+      'start', 'end', 'deadline'
+    ],
+    extras: [
+      'title', 'courseId', 'tipo',
+      'allDay', 'fecha',
+      'start', 'end'
+    ],
+    schedule: [
+      'title', 'tipo', 'grupo',
+      'aula', 'allDay',
+      'start', 'end'
+    ],
   };
 
-  // Opciones fijas
-  const asignaturas = ['DXIA', 'ATIA', 'AprRef', 'VisComp', 'TecLin', 'ProxInt'];
-  const asignaturasExtras = [...asignaturas, 'Otros'];
-  const subtipos = ['Test', 'Exposición', 'Entrega'];
-  const grupos = ['todos', 'G1', 'G2'];
-
+  // Carga los ítems cuando cambie la categoría
   useEffect(() => {
+    async function fetchItems() {
+      const resp = await fetch(JSON_SOURCES[category]);
+      const data = await resp.json();
+      setItems(data);
+      setSelectedIndex(null);
+    }
+    fetchItems();
+
+    // Configura esquema y resetea formulario
     const campos = camposPorCategoria[category];
-    const init = {};
-    campos.forEach(key => {
-      if (key === 'allDay') init[key] = category !== 'schedule';
-      else if (key === 'grupo') init[key] = 'todos';
-      else init[key] = '';
-    });
-    // Defaults ocultos
-    init.tipo =
-      category === 'schedule' ? 'clase' : category === 'extras' ? 'gestion' : 'actividad';
     setSchema(campos);
-    setFormData(init);
+    setFormData({});
   }, [category]);
+
+  // Cuando se selecciona un ítem, poblar formData
+  useEffect(() => {
+    if (selectedIndex == null) return;
+    const item = items[selectedIndex];
+    const fd = {};
+    schema.forEach(key => {
+      fd[key] = item[key] ?? (key === 'allDay' ? false : '');
+    });
+    setFormData(fd);
+  }, [selectedIndex, items, schema]);
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
-    const resp = await fetch(JSON_SOURCES[category]);
-    const data = await resp.json();
-    const nuevo = {};
+    if (selectedIndex == null) {
+      alert('Selecciona primero un ítem para editar.');
+      return;
+    }
+    // Clona array y reemplaza el objeto editado
+    const actualizado = [...items];
+    const nuevoObj = {};
     schema.forEach(key => {
-      if (formData[key] !== '' && formData[key] != null) {
-        nuevo[key] = key === 'allDay' ? Boolean(formData[key]) : formData[key];
+      const val = formData[key];
+      if (val !== '' && val != null) {
+        nuevoObj[key] = key === 'allDay' ? Boolean(val) : val;
       }
     });
-    // añadir campos ocultos
-    nuevo.tipo = formData.tipo;
-    const updated = [...data, nuevo];
-    console.log(updated);
-    alert(`Nuevo elemento creado en \"${category}\".`);
-    // TODO: persistir vía API
+    actualizado[selectedIndex] = {
+      ...items[selectedIndex],
+      ...nuevoObj
+    };
+
+    console.log(`Array actualizado de ${category}:`, actualizado);
+    alert(`Ítem ${selectedIndex + 1} de "${category}" editado.`);
+    // TODO: persistir cambios vía API backend
   };
 
   return (
     <div>
-      <h2>Crear nuevo ítem</h2>
+      <h2>Editar ítem existente</h2>
       <form onSubmit={handleSubmit}>
-        {/* Selector de destino */}
+        {/* Selector de categoría */}
         <div style={{ marginBottom: '1rem' }}>
           <label>
-            Destino:&nbsp;
+            Origen:&nbsp;
             <select value={category} onChange={e => setCategory(e.target.value)}>
-              <option value="deliverables">Actividades</option>
+              <option value="deliverables">Deliverables</option>
               <option value="extras">Extras</option>
-              <option value="schedule">Horario</option>
+              <option value="schedule">Schedule</option>
             </select>
           </label>
         </div>
 
-        {schema.map(field => (
-          <div key={field} style={{ marginBottom: '0.75rem' }}>
-            {field === 'title' && (
-              <label>
-                Título:
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                />
-              </label>
-            )}
+        {/* Selector de ítem */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label>
+            Ítem:&nbsp;
+            <select
+              value={selectedIndex ?? ''}
+              onChange={e => setSelectedIndex(e.target.value === '' ? null : Number(e.target.value))}
+            >
+              <option value="">— Selecciona —</option>
+              {items.map((it, idx) => (
+                <option key={idx} value={idx}>
+                  {it.title || `${category} #${idx + 1}`}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
-            {field === 'courseId' && (
-              <label>
-                Asignatura:
-                <select
-                  name="courseId"
-                  value={formData.courseId}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                >
-                  <option value="">— Selecciona —</option>
-                  {(category === 'extras' ? asignaturasExtras : asignaturas).map(a => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-
-            {field === 'subtipo' && (
-              <label>
-                Subtipo:
-                <select
-                  name="subtipo"
-                  value={formData.subtipo}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                >
-                  <option value="">—</option>
-                  {subtipos.map(st => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-
-            {field === 'grupo' && (
-              <label>
-                Grupo:
-                <select
-                  name="grupo"
-                  value={formData.grupo}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                >
-                  {grupos.map(g => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </label>
-            )}
-
-            {field === 'aula' && (
-              <label>
-                Aula:
-                <input
-                  type="text"
-                  name="aula"
-                  value={formData.aula}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                />
-              </label>
-            )}
-
-            {field === 'allDay' && category !== 'schedule' && (
+        {/* Campos dinámicos */}
+        {selectedIndex != null && schema.map(field => (
+          <div key={field} style={{ marginBottom: '0.5rem' }}>
+            {field === 'allDay' ? (
               <label>
                 <input
                   type="checkbox"
                   name="allDay"
-                  checked={formData.allDay}
+                  checked={formData.allDay || false}
                   onChange={handleChange}
                 />{' '}
                 Todo el día
               </label>
-            )}
-
-            {(field === 'fecha') && (
-              <label>
-                Fecha:
+            ) : (
+              <label style={{ display: 'block' }}>
+                {field.charAt(0).toUpperCase() + field.slice(1)}:
                 <input
-                  type="date"
-                  name="fecha"
-                  value={formData.fecha}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                />
-              </label>
-            )}
-
-            {(field === 'start' || field === 'end') && (
-              <label>
-                {field === 'start' ? 'Inicio:' : 'Fin:'}
-                <input
-                  type="datetime-local"
+                  type={
+                    ['fecha', 'start', 'end', 'deadline'].includes(field)
+                      ? 'datetime-local'
+                      : 'text'
+                  }
                   name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  style={{ marginLeft: '0.5rem' }}
-                />
-              </label>
-            )}
-
-            {field === 'deadline' && (
-              <label>
-                Deadline:
-                <input
-                  type="time"
-                  name="deadline"
-                  value={formData.deadline}
+                  value={formData[field] ?? ''}
                   onChange={handleChange}
                   style={{ marginLeft: '0.5rem' }}
                 />
@@ -218,124 +163,14 @@ export default function GestionCreate() {
           style={{
             marginTop: '1rem',
             padding: '8px 16px',
-            backgroundColor: '#28a745',
+            backgroundColor: '#ffc107',
             color: '#fff',
             border: 'none',
             borderRadius: 4,
             cursor: 'pointer'
           }}
         >
-          Crear
-        </button>
-      </form>
-    </div>
-  );
-}
-
-// src/components/GestionEdit.jsx
-import React, { useState, useEffect } from 'react';
-
-const JSON_SOURCES = {
-  deliverables: '/deliverables.json',
-  extras: '/extras.json',
-  schedule: '/schedule.json',
-};
-
-export default function GestionEdit() {
-  const [category, setCategory] = useState('deliverables');
-  const [items, setItems] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [schema, setSchema] = useState([]);
-  const [formData, setFormData] = useState({});
-
-  const camposPorCategoria = {
-    deliverables: ['title','courseId','subtipo','grupo','aula','allDay','fecha','start','end','deadline'],
-    extras: ['title','courseId','allDay','fecha','start','end'],
-    schedule: ['title','grupo','aula','start','end'],
-  };
-
-  useEffect(() => {
-    async function fetchItems() {
-      const resp = await fetch(JSON_SOURCES[category]);
-      const data = await resp.json();
-      setItems(data);
-      setSelectedIndex(null);
-    }
-    fetchItems();
-    setSchema(camposPorCategoria[category]);
-  }, [category]);
-
-  useEffect(() => {
-    if (selectedIndex == null) return;
-    const item = items[selectedIndex];
-    const init = {};
-    schema.forEach(key => init[key] = item[key] ?? (key === 'allDay' ? false : ''));
-    init.tipo =
-      category === 'schedule' ? 'clase' : category === 'extras' ? 'gestion' : 'actividad';
-    setFormData(init);
-  }, [selectedIndex, items, schema]);
-
-  const handleChange = e => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (selectedIndex == null) { alert('Selecciona un ítem.'); return; }
-    const updated = [...items];
-    const nuevo = {};
-    schema.forEach(key => {
-      if (formData[key] !== '' && formData[key] != null) nuevo[key] = key==='allDay'?Boolean(formData[key]):formData[key];
-    });
-    nuevo.tipo = formData.tipo;
-    updated[selectedIndex] = { ...items[selectedIndex], ...nuevo };
-    console.log(updated);
-    alert(`Ítem actualizado en \"${category}\".`);
-  };
-
-  return (
-    <div>
-      <h2>Editar ítem existente</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Origen:&nbsp;
-            <select value={category} onChange={e => setCategory(e.target.value)}>
-              <option value="deliverables">Actividades</option>
-              <option value="extras">Extras</option>
-              <option value="schedule">Horario</option>
-            </select>
-          </label>
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Ítem:&nbsp;
-            <select
-              value={selectedIndex ?? ''}
-              onChange={e => setSelectedIndex(e.target.value === '' ? null : Number(e.target.value))}
-            >
-              <option value="">— Selecciona —</option>
-              {items.map((it, i) => (
-                <option key={i} value={i}>{it.title || `${category} #${i+1}`}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {selectedIndex != null && schema.map(field => (
-          <div key={field} style={{ marginBottom: '0.75rem' }}>
-            {/* reutiliza lógica de labels igual que en Crear */}
-            {/* ... mismo JSX condicional que en GestionCreate ... */}
-          </div>
-        ))}
-
-        <button type="submit" style={{ marginTop: '1rem', padding: '8px 16px', backgroundColor: '#ffc107', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>
-          Guardar
+          Guardar cambios
         </button>
       </form>
     </div>
