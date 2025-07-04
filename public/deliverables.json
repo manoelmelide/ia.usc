@@ -28,7 +28,7 @@
     "courseId": "VisComp",
     "title": "Presentación Final",
     "subtipo": "Exposición",
-    "allDay": false,
+    "allDay": true,
     "date": "2025-11-20",
     "deadline": "12:00"
   },
