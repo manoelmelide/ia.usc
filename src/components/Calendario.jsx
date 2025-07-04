@@ -1,3 +1,5 @@
+// src/components/Calendario.jsx
+
 import React, { useEffect, useState, useMemo } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import es from 'date-fns/locale/es'
@@ -9,25 +11,27 @@ const localizer = dateFnsLocalizer({
   format, parse: parseISO, startOfWeek, getDay, locales: { es }
 })
 
-const CustomEvent = ({ event, title, view }) => {
-  const { tipo, grupo, aula, deadline } = event
-  const isActividad = tipo === 'actividad'
+const CustomEvent = ({ event, view }) => {
+  const { tipo, grupo, aula, deadline, title } = event
+  const esActividad = tipo === 'actividad'
   const grpLabel = grupo !== 'todos' ? ` – ${grupo}` : ''
 
+  // === VISTA MES ===
   if (view === 'month') {
-    if (isActividad) {
-      const base = `${event.title}${grpLabel}`
-      const tail = deadline
-        ? ` (${deadline})`
-        : aula
-          ? ` (${aula})`
-          : ''
-      return <div className="rbc-event-content">{base}{tail}</div>
-    } else {
-      const tail = aula ? ` (${aula})` : ''
+    if (esActividad) {
       return (
         <div className="rbc-event-content">
-          <div>{event.title}{tail}</div>
+          <div>{title}{grpLabel}</div>
+          {deadline
+            ? <div>({deadline})</div>
+            : aula && <div>({aula})</div>}
+        </div>
+      )
+    } else {
+      // examen en mes: título + aula en primera línea, hora en segunda (por CSS)
+      return (
+        <div className="rbc-event-content">
+          <div>{title}{aula ? ` (${aula})` : ''}</div>
           {!event.allDay && (
             <div className="event-time-display">
               {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
@@ -38,20 +42,22 @@ const CustomEvent = ({ event, title, view }) => {
     }
   }
 
+  // === VISTA SEMANA ===
   if (view === 'week') {
-    if (isActividad) {
+    if (esActividad) {
       return (
         <div className="rbc-event-content">
-          <div>{event.title}{grpLabel}</div>
+          <div>{title}{grpLabel}</div>
           {deadline
             ? <div>Fin: {deadline}</div>
             : aula && <div>Aula: {aula}</div>}
         </div>
       )
     } else {
+      // examen en semana: keep default título + hora oculta por CSS
       return (
         <div className="rbc-event-content">
-          <div>{event.title}</div>
+          <div>{title}</div>
           {!event.allDay && (
             <div className="event-time-display">
               {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
@@ -62,10 +68,10 @@ const CustomEvent = ({ event, title, view }) => {
     }
   }
 
-  // agenda y demás vistas
+  // === VISTAS AGENDA/OTRAS ===
   return (
     <div className="rbc-event-content">
-      <div>{event.title}</div>
+      <div>{title}</div>
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
@@ -90,7 +96,7 @@ export default function Calendario() {
         end:   new Date(ev.end)
       }))
 
-      const parsedDeliverables = deliverables.map(ev => {
+      const parsedDeliv = deliverables.map(ev => {
         let start, end
         if (ev.allDay) {
           if (ev.deadline) {
@@ -107,7 +113,7 @@ export default function Calendario() {
         return { ...ev, start, end }
       })
 
-      setEvents([...parsedSchedule, ...parsedDeliverables])
+      setEvents([...parsedSchedule, ...parsedDeliv])
     })
   }, [])
 
@@ -115,14 +121,14 @@ export default function Calendario() {
     if (view === 'month') return events
     return events.filter(ev => {
       if (ev.allDay) return true
-      const eH = ev.end.getHours() + ev.end.getMinutes()/60
-      const sH = ev.start.getHours() + ev.start.getMinutes()/60
+      const eH = ev.end.getHours() + ev.end.getMinutes() / 60
+      const sH = ev.start.getHours() + ev.start.getMinutes() / 60
       return eH > 9 && sH < 21
     })
   }, [events, view])
 
-  const minTime = useMemo(() => new Date(0,0,0,9,0), [])
-  const maxTime = useMemo(() => new Date(0,0,0,21,0), [])
+  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0), [])
+  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0), [])
 
   const eventStyleGetter = ev => {
     let bg = '#3174ad', color = 'black'
@@ -138,7 +144,15 @@ export default function Calendario() {
     } else if (ev.tipo === 'examen') {
       bg = '#FF6B6B'; color = 'white'
     }
-    return { style: { backgroundColor: bg, color, borderRadius: '3px', border: 'none' } }
+    return {
+      style: {
+        backgroundColor: bg,
+        color,
+        borderRadius: '3px',
+        border: 'none',
+        height: 'auto'        // asegura que la caja crezca para dos líneas
+      }
+    }
   }
 
   return (
@@ -171,7 +185,7 @@ export default function Calendario() {
         dayLayoutAlgorithm="no-overlap"
         components={{ event: props => <CustomEvent {...props} view={view}/> }}
         eventPropGetter={eventStyleGetter}
-        style={{ height: view==='month' ? 'auto' : 650 }}
+        style={{ height: view === 'month' ? 'auto' : 650 }}
       />
     </div>
   )
