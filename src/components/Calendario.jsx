@@ -16,7 +16,7 @@ const localizer = dateFnsLocalizer({
 })
 
 const CustomEvent = ({ event, view }) => {
-  const { tipo, grupo, aula, deadline, title, start, end, allDay } = event
+  const { tipo, grupo, title, start, end, allDay, aula, deadline } = event
   const grpLabel = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
 
   const TimeDisplay = () =>
@@ -44,7 +44,7 @@ const CustomEvent = ({ event, view }) => {
     )
   }
 
-  // agenda y demás
+  // agenda y demás vistas
   return (
     <div className="rbc-event-content">
       <div>{title}{grpLabel}</div>
@@ -123,21 +123,31 @@ export default function Calendario() {
   const maxTime = new Date(0, 0, 0, 21, 0)
 
   const eventStyleGetter = ev => {
-    let bg = '#3174ad', color = 'black'
+    let bg = '#3174ad'
+    let color = 'black'
+
     if (ev.tipo === 'clase') {
-      if (ev.grupo === 'G1') bg = '#FFD700'
-      else if (ev.grupo === 'G2') bg = '#32CD32'
+      if (ev.grupo === 'G1') {
+        bg = '#FFD700'
+      } else if (ev.grupo === 'G2') {
+        bg = '#32CD32'
+      } else {
+        // grupo "todos" usa azul por defecto, texto blanco
+        bg = '#3174ad'
+        color = 'white'
+      }
     } else if (ev.tipo === 'actividad') {
-      bg = ev.grupo === 'todos'
-        ? '#FFDAB9'
-        : ev.grupo === 'G1'
-          ? '#FFFACD'
-          : '#90EE90'
+      if (ev.grupo === 'todos')      bg = '#FFDAB9'
+      else if (ev.grupo === 'G1')    bg = '#FFFACD'
+      else /* G2 */                  bg = '#90EE90'
     } else if (ev.tipo === 'examen') {
-      bg = '#FF6B6B'; color = 'white'
+      bg = '#FF6B6B'
+      color = 'white'
     } else if (ev.tipo === 'gestion') {
-      bg = '#8A2BE2'; color = 'white'
+      bg = '#8A2BE2'
+      color = 'white'
     }
+
     return {
       style: {
         backgroundColor: bg,
@@ -177,14 +187,14 @@ export default function Calendario() {
         min={minTime}
         max={maxTime}
         formats={{
-          timeGutterFormat:'HH:mm',
-          eventTimeRangeFormat:({ start, end })=>
-            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
-          agendaTimeFormat:'HH:mm',
-          agendaTimeRangeFormat:({ start, end })=>
-            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
-          dayRangeHeaderFormat:({ start, end })=>
-            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
+          timeGutterFormat: 'HH:mm',
+          eventTimeRangeFormat: ({ start, end }) =>
+            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
+          agendaTimeFormat: 'HH:mm',
+          agendaTimeRangeFormat: ({ start, end }) =>
+            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
+          dayRangeHeaderFormat: ({ start, end }) =>
+            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
         components={{
