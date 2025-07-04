@@ -95,7 +95,7 @@ export default function Home() {
           <p>
             <strong>Ponderaciones:</strong>{' '}
             {Object.entries(selectedCourse.ponderaciones)
-              .map(([k,v])=>${k}: ${v}%)
+              .map(([k,v])=> `${k}: ${v}%`)
               .join(', ')}
           </p>
           <p>
