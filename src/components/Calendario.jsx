@@ -13,10 +13,12 @@ const localizer = dateFnsLocalizer({
 const CustomEvent = ({ event, view }) => {
   const { tipo, grupo, aula, deadline, title } = event
   const esActividad = tipo === 'actividad'
-  const grpLabel = grupo !== 'todos' ? ` – ${grupo}` : ''
+  const esGestion   = tipo === 'gestion'
+  const grpLabel    = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
 
+  // FORMATO MES
   if (view === 'month') {
-    if (esActividad) {
+    if (esActividad || tipo === 'examen') {
       return (
         <div className="rbc-event-content">
           <div>{title}{grpLabel}</div>
@@ -25,22 +27,30 @@ const CustomEvent = ({ event, view }) => {
             : aula && <div>({aula})</div>}
         </div>
       )
-    } else {
+    }
+    if (esGestion) {
       return (
         <div className="rbc-event-content">
-          <div>{title}{aula ? ` (${aula})` : ''}</div>
-          {!event.allDay && (
-            <div className="event-time-display">
-              {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-            </div>
-          )}
+          <div>{title}</div>
         </div>
       )
     }
+    // clases en mes
+    return (
+      <div className="rbc-event-content">
+        <div>{title}{aula ? ` (${aula})` : ''}</div>
+        {!event.allDay && (
+          <div className="event-time-display">
+            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
+          </div>
+        )}
+      </div>
+    )
   }
 
+  // FORMATO SEMANA
   if (view === 'week') {
-    if (esActividad) {
+    if (esActividad || tipo === 'examen') {
       return (
         <div className="rbc-event-content">
           <div>{title}{grpLabel}</div>
@@ -49,11 +59,11 @@ const CustomEvent = ({ event, view }) => {
             : aula && <div>Aula: {aula}</div>}
         </div>
       )
-    } else {
-      // examen en semana: mostrar título y aula igual que en mes
+    }
+    if (esGestion) {
       return (
         <div className="rbc-event-content">
-          <div>{title}{aula ? ` (${aula})` : ''}</div>
+          <div>{title}</div>
           {!event.allDay && (
             <div className="event-time-display">
               {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
@@ -62,9 +72,20 @@ const CustomEvent = ({ event, view }) => {
         </div>
       )
     }
+    // clases en semana / exámenes
+    return (
+      <div className="rbc-event-content">
+        <div>{title}{aula ? ` (${aula})` : ''}</div>
+        {!event.allDay && (
+          <div className="event-time-display">
+            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
+          </div>
+        )}
+      </div>
+    )
   }
 
-  // agenda y demás vistas
+  // AGENDA y demás
   return (
     <div className="rbc-event-content">
       <div>{title}</div>
@@ -79,19 +100,19 @@ const CustomEvent = ({ event, view }) => {
 
 export default function Calendario() {
   const [events, setEvents] = useState([])
-  const [view, setView] = useState('week')
+  const [view, setView]     = useState('week')
 
   useEffect(() => {
     Promise.all([
       fetch('/schedule.json').then(r => r.json()),
-      fetch('/deliverables.json').then(r => r.json())
-    ]).then(([schedule, deliverables]) => {
+      fetch('/deliverables.json').then(r => r.json()),
+      fetch('/extras.json').then(r => r.json())
+    ]).then(([schedule, deliverables, extras]) => {
       const parsedSchedule = schedule.map(ev => ({
         ...ev,
         start: new Date(ev.start),
         end:   new Date(ev.end)
       }))
-
       const parsedDeliv = deliverables.map(ev => {
         let start, end
         if (ev.allDay) {
@@ -108,8 +129,19 @@ export default function Calendario() {
         }
         return { ...ev, start, end }
       })
+      const parsedExtras = extras.map(ev => {
+        let start, end
+        if (ev.allDay) {
+          start = new Date(ev.fecha)
+          end   = new Date(ev.fecha)
+        } else {
+          start = new Date(ev.start)
+          end   = new Date(ev.end)
+        }
+        return { ...ev, start, end }
+      })
 
-      setEvents([...parsedSchedule, ...parsedDeliv])
+      setEvents([...parsedSchedule, ...parsedDeliv, ...parsedExtras])
     })
   }, [])
 
@@ -123,8 +155,8 @@ export default function Calendario() {
     })
   }, [events, view])
 
-  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0), [])
-  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0), [])
+  const minTime = useMemo(() => new Date(0,0,0,9,0), [])
+  const maxTime = useMemo(() => new Date(0,0,0,21,0), [])
 
   const eventStyleGetter = ev => {
     let bg = '#3174ad', color = 'black'
@@ -139,6 +171,9 @@ export default function Calendario() {
           : '#90EE90'
     } else if (ev.tipo === 'examen') {
       bg = '#FF6B6B'; color = 'white'
+    } else if (ev.tipo === 'gestion') {
+      // color único para tus extras
+      bg = '#8A2BE2'; color = 'white'
     }
     return {
       style: {
@@ -169,17 +204,17 @@ export default function Calendario() {
         min={minTime}
         max={maxTime}
         formats={{
-          timeGutterFormat: 'HH:mm',
-          eventTimeRangeFormat: ({ start, end }) =>
+          timeGutterFormat:'HH:mm',
+          eventTimeRangeFormat:({start,end})=>
             `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
-          agendaTimeFormat: 'HH:mm',
-          agendaTimeRangeFormat: ({ start, end }) =>
+          agendaTimeFormat:'HH:mm',
+          agendaTimeRangeFormat:({start,end})=>
             `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
-          dayRangeHeaderFormat: ({ start, end }) =>
+          dayRangeHeaderFormat:({start,end})=>
             `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{ event: props => <CustomEvent {...props} view={view}/> }}
+        components={{ event: props=><CustomEvent {...props} view={view}/> }}
         eventPropGetter={eventStyleGetter}
         style={{ height: view === 'month' ? 'auto' : 650 }}
       />
