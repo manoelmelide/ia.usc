@@ -1,65 +1,83 @@
-// src/components/Calendario.jsx
-import React, { useEffect, useState, useMemo } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import es from 'date-fns/locale/es';
-import { parseISO, format, startOfWeek, getDay } from 'date-fns';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './Calendario.css';
+import React, { useEffect, useState, useMemo } from 'react'
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
+import es from 'date-fns/locale/es'
+import { parseISO, format, startOfWeek, getDay } from 'date-fns'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import './Calendario.css'
 
 const localizer = dateFnsLocalizer({
-  format,
-  parse: parseISO,
-  startOfWeek,
-  getDay,
-  locales: { es }
-});
+  format, parse: parseISO, startOfWeek, getDay, locales: { es }
+})
 
 const CustomEvent = ({ event, title, view }) => {
-  const isEntrega = event.tipo === 'entrega';
-  const displayTitle = isEntrega
-    ? (event.deadline ? `${event.title} (${event.deadline})` : event.title)
-    : title;
+  const { tipo, grupo, aula, deadline } = event
+  const isActividad = tipo === 'actividad'
+  const grpLabel = grupo !== 'todos' ? ` – ${grupo}` : ''
 
-  if (view === 'week') {
-    return (
-      <div className="rbc-event-content">
-        {!event.allDay && (
-          <div className="event-time-display">
-            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-          </div>
-        )}
-        <div className="event-title">{displayTitle}</div>
-        {event.grupo !== 'todos' && (
-          <div className="event-group">{event.grupo}</div>
-        )}
-        <div className="event-aula">{event.aula}</div>
-      </div>
-    );
+  if (view === 'month') {
+    if (isActividad) {
+      const base = `${event.title}${grpLabel}`
+      const tail = deadline
+        ? ` (${deadline})`
+        : aula
+          ? ` (${aula})`
+          : ''
+      return <div className="rbc-event-content">{base}{tail}</div>
+    } else {
+      const tail = aula ? ` (${aula})` : ''
+      return (
+        <div className="rbc-event-content">
+          <div>{event.title}{tail}</div>
+          {!event.allDay && (
+            <div className="event-time-display">
+              {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
+            </div>
+          )}
+        </div>
+      )
+    }
   }
 
-  const aulaPart = event.aula ? ` (${event.aula})` : '';
-  const formatted = event.tipo==='entrega'
-    ? displayTitle
-    : event.grupo==='todos'
-      ? title + aulaPart
-      : `${title} – ${event.grupo}` + aulaPart;
+  if (view === 'week') {
+    if (isActividad) {
+      return (
+        <div className="rbc-event-content">
+          <div>{event.title}{grpLabel}</div>
+          {deadline
+            ? <div>Fin: {deadline}</div>
+            : aula && <div>Aula: {aula}</div>}
+        </div>
+      )
+    } else {
+      return (
+        <div className="rbc-event-content">
+          <div>{event.title}</div>
+          {!event.allDay && (
+            <div className="event-time-display">
+              {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
+            </div>
+          )}
+        </div>
+      )
+    }
+  }
 
-
+  // agenda y demás vistas
   return (
     <div className="rbc-event-content">
-      <div>{formatted}</div>
+      <div>{event.title}</div>
       {!event.allDay && (
         <div className="event-time-display">
           {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
 export default function Calendario() {
-  const [events, setEvents] = useState([]);
-  const [view, setView] = useState('week');
+  const [events, setEvents] = useState([])
+  const [view, setView] = useState('week')
 
   useEffect(() => {
     Promise.all([
@@ -70,79 +88,58 @@ export default function Calendario() {
         ...ev,
         start: new Date(ev.start),
         end:   new Date(ev.end)
-      }));
+      }))
 
       const parsedDeliverables = deliverables.map(ev => {
-        let start, end;
-        if (ev.start && ev.end) {
-          start = new Date(ev.start);
-          end   = new Date(ev.end);
-        } else {
-          const date = ev.date;
-          if (ev.allDay) {
-            start = new Date(date);
-            end   = new Date(date);
-          } else if (ev.deadline) {
-            const ts = `${date}T${ev.deadline}`;
-            start = new Date(ts);
-            end   = new Date(ts);
+        let start, end
+        if (ev.allDay) {
+          if (ev.deadline) {
+            start = new Date(`${ev.fecha}T${ev.deadline}`)
+            end   = new Date(`${ev.fecha}T${ev.deadline}`)
           } else {
-            start = new Date(date);
-            end   = new Date(date);
+            start = new Date(ev.fecha)
+            end   = new Date(ev.fecha)
           }
+        } else {
+          start = new Date(ev.start)
+          end   = new Date(ev.end)
         }
-        return {
-          ...ev,
-          start,
-          end,
-          tipo: ev.tipo || 'entrega',
-          grupo: ev.grupo || 'todos',
-          aula: ev.aula || ''
-        };
-      });
+        return { ...ev, start, end }
+      })
 
-      setEvents([...parsedSchedule, ...parsedDeliverables]);
-    });
-  }, []);
+      setEvents([...parsedSchedule, ...parsedDeliverables])
+    })
+  }, [])
 
   const visibleEvents = useMemo(() => {
-    if (view === 'month') return events;
+    if (view === 'month') return events
     return events.filter(ev => {
-      if (ev.allDay) return true;
-      const eH = ev.end.getHours() + ev.end.getMinutes() / 60;
-      const sH = ev.start.getHours() + ev.start.getMinutes() / 60;
-      return eH > 9 && sH < 21;
-    });
-  }, [events, view]);
+      if (ev.allDay) return true
+      const eH = ev.end.getHours() + ev.end.getMinutes()/60
+      const sH = ev.start.getHours() + ev.start.getMinutes()/60
+      return eH > 9 && sH < 21
+    })
+  }, [events, view])
 
-  const minTime = useMemo(() => new Date(0, 0, 0, 9, 0, 0), []);
-  const maxTime = useMemo(() => new Date(0, 0, 0, 21, 0, 0), []);
+  const minTime = useMemo(() => new Date(0,0,0,9,0), [])
+  const maxTime = useMemo(() => new Date(0,0,0,21,0), [])
 
   const eventStyleGetter = ev => {
-    let backgroundColor = '#3174ad';
-    let color = 'black';
+    let bg = '#3174ad', color = 'black'
     if (ev.tipo === 'clase') {
-      if (ev.grupo === 'G1') backgroundColor = '#FFD700';
-      else if (ev.grupo === 'G2') backgroundColor = '#32CD32';
-    } else if (ev.tipo === 'entrega') {
-      backgroundColor = ev.grupo === 'todos'
+      if (ev.grupo === 'G1') bg = '#FFD700'
+      else if (ev.grupo === 'G2') bg = '#32CD32'
+    } else if (ev.tipo === 'actividad') {
+      bg = ev.grupo === 'todos'
         ? '#FFDAB9'
         : ev.grupo === 'G1'
           ? '#FFFACD'
-          : '#90EE90';
+          : '#90EE90'
     } else if (ev.tipo === 'examen') {
-      backgroundColor = '#FF6B6B';
-      color = 'white';
+      bg = '#FF6B6B'; color = 'white'
     }
-    return {
-      style: {
-        backgroundColor,
-        color,
-        borderRadius: '3px',
-        border: 'none'
-      }
-    };
-  };
+    return { style: { backgroundColor: bg, color, borderRadius: '3px', border: 'none' } }
+  }
 
   return (
     <div>
@@ -157,25 +154,25 @@ export default function Calendario() {
         popup={false}
         className="mi-calendario-sin-scroll"
         defaultView="week"
-        views={['month', 'week', 'agenda']}
+        views={['month','week','agenda']}
         onView={setView}
         min={minTime}
         max={maxTime}
         formats={{
           timeGutterFormat: 'HH:mm',
           eventTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
           agendaTimeFormat: 'HH:mm',
           agendaTimeRangeFormat: ({ start, end }) =>
-            `${format(start, 'HH:mm')} – ${format(end, 'HH:mm')}`,
+            `${format(start,'HH:mm')} – ${format(end,'HH:mm')}`,
           dayRangeHeaderFormat: ({ start, end }) =>
-            `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
+            `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{ event: props => <CustomEvent {...props} view={view} /> }}
+        components={{ event: props => <CustomEvent {...props} view={view}/> }}
         eventPropGetter={eventStyleGetter}
-        style={{ height: view === 'month' ? 'auto' : 650 }}
+        style={{ height: view==='month' ? 'auto' : 650 }}
       />
     </div>
-  );
+  )
 }
