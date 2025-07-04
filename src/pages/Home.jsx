@@ -88,7 +88,31 @@ export default function Home() {
         })}
       </div>
 
-      {/* detalle del curso seleccionado y Calendario */}
+      {selectedCourse && (
+        <div className="course-detail">
+          <h2>{selectedCourse.title}</h2>
+          <p><strong>Créditos:</strong> {selectedCourse.credits}</p>
+          <p>
+            <strong>Ponderaciones:</strong>{' '}
+            {Object.entries(selectedCourse.ponderaciones)
+              .map(([k,v])=>${k}: ${v}%)
+              .join(', ')}
+          </p>
+          <p>
+            <strong>Sistema de evaluación:</strong>{' '}
+            {selectedCourse.sistema_evaluacion}
+          </p>
+          <p>
+            <strong>Clases obligatorias:</strong>{' '}
+            {selectedCourse.clases.practicas ? 'Prácticas' : ''}
+            {selectedCourse.clases.practicas && selectedCourse.clases.teoricas ? ', ' : ''}
+            {selectedCourse.clases.teoricas ? 'Teóricas' : ''}
+          </p>
+          <button onClick={()=>setSelectedCourse(null)}>Cerrar</button>
+        </div>
+      )}
+
+      <Calendario />
     </div>
   );
 }
