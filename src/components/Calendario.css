@@ -21,8 +21,7 @@
   font-size: 0.90em;
   padding: 2px 5px;
   overflow: visible;
-  white-space: normal;      /* permite varias líneas */
-  word-break: break-word;   /* evita cortes bruscos */
+  white-space: normal;
   line-height: 1.2;
 }
 
@@ -32,15 +31,14 @@
   /* sin width fijo para que "no-overlap" divida el espacio */
 }
 
-/* Mostrar la hora solo en vista mes para todos los eventos */
-.mi-calendario-sin-scroll .rbc-month-view .event-time-display {
+/* Mostrar la hora solo en vista mes */
+.rbc-month-view .event-time-display {
   display: block;
   font-size: 0.75em;
   opacity: 0.8;
   margin-top: 2px;
 }
-
-/* Ocultar la hora en vista horaria (week/agenda) */
+/* Ocultar la hora en otras vistas */
 .rbc-time-view .event-time-display {
   display: none;
 }
