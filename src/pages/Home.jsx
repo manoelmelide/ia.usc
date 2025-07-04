@@ -70,13 +70,26 @@ export default function Home() {
         <div className="course-detail">
           <h2>{selectedCourse.title}</h2>
           <p><strong>Créditos:</strong> {selectedCourse.credits}</p>
-          <p><strong>Ponderaciones:</strong> {selectedCourse.weights}</p>
-          <p><strong>Sistema de evaluación:</strong> {selectedCourse.evaluation}</p>
+
+          <p>
+            <strong>Ponderaciones:</strong>{' '}
+            {Object.entries(selectedCourse.ponderaciones)
+              .map(([key, val]) => `${key}: ${val}%`)
+              .join(', ')}
+          </p>
+
+          <p>
+            <strong>Sistema de evaluación:</strong>{' '}
+            {selectedCourse.sistema_evaluacion}
+          </p>
+
           <p>
             <strong>Clases obligatorias:</strong>{' '}
-            {selectedCourse.practicas ? 'Prácticas, ' : ''}
-            {selectedCourse.expositivas ? 'Expositivas' : ''}
+            {selectedCourse.clases.practicas ? 'Prácticas' : null}
+            {selectedCourse.clases.practicas && selectedCourse.clases.teoricas ? ', ' : null}
+            {selectedCourse.clases.teoricas ? 'Teóricas' : null}
           </p>
+
           <button onClick={() => setSelectedCourse(null)}>Cerrar</button>
         </div>
       )}
