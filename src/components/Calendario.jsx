@@ -11,89 +11,59 @@ const localizer = dateFnsLocalizer({
 })
 
 const CustomEvent = ({ event, view }) => {
-  const { tipo, grupo, aula, deadline, title } = event
-  const esActividad = tipo === 'actividad'
-  const esGestion   = tipo === 'gestion'
-  const grpLabel    = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
+  const { tipo, grupo, aula, deadline, title, start, end, allDay, subtipo } = event
+  const grpLabel  = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
 
-  // FORMATO MES
+  // Helper para mostrar hora si no es allDay
+  const TimeDisplay = () =>
+    !allDay && (
+      <div className="event-time-display">
+        {format(start, 'HH:mm')} – {format(end, 'HH:mm')}
+      </div>
+    )
+
+  // --- VISTA MES ---
   if (view === 'month') {
-    if (esActividad || tipo === 'examen') {
-      return (
-        <div className="rbc-event-content">
-          <div>{title}{grpLabel}</div>
-          {deadline
-            ? <div>({deadline})</div>
-            : aula && <div>({aula})</div>}
-        </div>
-      )
-    }
-    if (esGestion) {
-      return (
-        <div className="rbc-event-content">
-          <div>{title}</div>
-        </div>
-      )
-    }
-    // clases en mes
     return (
       <div className="rbc-event-content">
-        <div>{title}{aula ? ` (${aula})` : ''}</div>
-        {!event.allDay && (
-          <div className="event-time-display">
-            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-          </div>
-        )}
+        {/* Mostrar hora para todos si tienen start/end */}
+        <TimeDisplay />
+
+        {/* Título + grupo */}
+        <div>{title}{grpLabel}</div>
+
+        {/* Subtítulo o aula o deadline según tipo */}
+        {tipo === 'actividad' && subtipo && <div>{subtipo}</div>}
+        {deadline
+          ? <div>Fin: {deadline}</div>
+          : (tipo !== 'actividad' && aula) 
+            ? <div>{aula}</div>
+            : null}
       </div>
     )
   }
 
-  // FORMATO SEMANA
+  // --- VISTA SEMANA ---
   if (view === 'week') {
-    if (esActividad || tipo === 'examen') {
-      return (
-        <div className="rbc-event-content">
-          <div>{title}{grpLabel}</div>
-          {deadline
-            ? <div>Fin: {deadline}</div>
-            : aula && <div>Aula: {aula}</div>}
-        </div>
-      )
-    }
-    if (esGestion) {
-      return (
-        <div className="rbc-event-content">
-          <div>{title}</div>
-          {!event.allDay && (
-            <div className="event-time-display">
-              {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-            </div>
-          )}
-        </div>
-      )
-    }
-    // clases en semana / exámenes
     return (
       <div className="rbc-event-content">
-        <div>{title}{aula ? ` (${aula})` : ''}</div>
-        {!event.allDay && (
-          <div className="event-time-display">
-            {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-          </div>
-        )}
+        <TimeDisplay />
+        <div>{title}{grpLabel}</div>
+        {tipo === 'actividad' && subtipo && <div>{subtipo}</div>}
+        {deadline
+          ? <div>Fin: {deadline}</div>
+          : aula
+            ? <div>Aula: {aula}</div>
+            : null}
       </div>
     )
   }
 
-  // AGENDA y demás
+  // --- AGENDA / OTRAS VISTAS ---
   return (
     <div className="rbc-event-content">
-      <div>{title}</div>
-      {!event.allDay && (
-        <div className="event-time-display">
-          {format(event.start, 'HH:mm')} – {format(event.end, 'HH:mm')}
-        </div>
-      )}
+      <TimeDisplay />
+      <div>{title}{grpLabel}</div>
     </div>
   )
 }
@@ -172,7 +142,6 @@ export default function Calendario() {
     } else if (ev.tipo === 'examen') {
       bg = '#FF6B6B'; color = 'white'
     } else if (ev.tipo === 'gestion') {
-      // color único para tus extras
       bg = '#8A2BE2'; color = 'white'
     }
     return {
@@ -214,7 +183,7 @@ export default function Calendario() {
             `${format(start,'dd/MM')} – ${format(end,'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{ event: props=><CustomEvent {...props} view={view}/> }}
+        components={{ event: props => <CustomEvent {...props} view={view}/> }}
         eventPropGetter={eventStyleGetter}
         style={{ height: view === 'month' ? 'auto' : 650 }}
       />
