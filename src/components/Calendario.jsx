@@ -16,9 +16,9 @@ const localizer = dateFnsLocalizer({
 })
 
 const CustomEvent = ({ event, view }) => {
-  const { tipo, grupo, title, start, end, allDay, aula, deadline } = event
-  const grpLabel = grupo && grupo !== 'todos' ? ` – ${grupo}` : ''
+  const { tipo, grupo, aula, title, start, end, allDay } = event
 
+  // Mostrar hora cuando no es allDay
   const TimeDisplay = () =>
     !allDay && (
       <div className="event-time-display">
@@ -26,28 +26,41 @@ const CustomEvent = ({ event, view }) => {
       </div>
     )
 
+  // Formato especial para vista semanal de clases de grupos distintos de "todos"
+  if (view === 'week' && tipo === 'clase' && grupo !== 'todos') {
+    return (
+      <div className="rbc-event-content">
+        <TimeDisplay />
+        <div>{title}</div>
+        <div>{grupo} – {aula}</div>
+      </div>
+    )
+  }
+
+  // Resto de formatos, sin cambios
   if (view === 'month') {
     return (
       <div className="rbc-event-content">
         <TimeDisplay />
-        <div>{title}{grpLabel}</div>
+        <div>{title}{grupo && grupo !== 'todos' ? ` – ${grupo}` : ''}{aula && ` (${aula})`}</div>
       </div>
     )
   }
 
+  // Vista semana (para todo lo demás)
   if (view === 'week') {
     return (
       <div className="rbc-event-content">
-        <div>{title}{grpLabel}</div>
+        <div>{title}{grupo && grupo !== 'todos' ? ` – ${grupo}` : ''}{aula && ` (${aula})`}</div>
         <TimeDisplay />
       </div>
     )
   }
 
-  // agenda y demás vistas
+  // Agenda y otras vistas
   return (
     <div className="rbc-event-content">
-      <div>{title}{grpLabel}</div>
+      <div>{title}{grupo && grupo !== 'todos' ? ` – ${grupo}` : ''}</div>
       <TimeDisplay />
     </div>
   )
@@ -125,29 +138,20 @@ export default function Calendario() {
   const eventStyleGetter = ev => {
     let bg = '#3174ad'
     let color = 'black'
-
     if (ev.tipo === 'clase') {
-      if (ev.grupo === 'G1') {
-        bg = '#FFD700'
-      } else if (ev.grupo === 'G2') {
-        bg = '#32CD32'
-      } else {
-        // grupo "todos" usa azul por defecto, texto blanco
+      if (ev.grupo === 'G1') bg = '#FFD700'
+      else if (ev.grupo === 'G2') bg = '#32CD32'
+      else {
         bg = '#3174ad'
-        color = 'white'
+        color = 'white' // texto blanco para "todos"
       }
     } else if (ev.tipo === 'actividad') {
-      if (ev.grupo === 'todos')      bg = '#FFDAB9'
-      else if (ev.grupo === 'G1')    bg = '#FFFACD'
-      else /* G2 */                  bg = '#90EE90'
+      bg = ev.grupo === 'todos' ? '#FFDAB9' : ev.grupo === 'G1' ? '#FFFACD' : '#90EE90'
     } else if (ev.tipo === 'examen') {
-      bg = '#FF6B6B'
-      color = 'white'
+      bg = '#FF6B6B'; color = 'white'
     } else if (ev.tipo === 'gestion') {
-      bg = '#8A2BE2'
-      color = 'white'
+      bg = '#8A2BE2'; color = 'white'
     }
-
     return {
       style: {
         backgroundColor: bg,
@@ -197,9 +201,7 @@ export default function Calendario() {
             `${format(start, 'dd/MM')} – ${format(end, 'dd/MM')}`
         }}
         dayLayoutAlgorithm="no-overlap"
-        components={{
-          event: props => <CustomEvent {...props} view={viewParam} />
-        }}
+        components={{ event: props => <CustomEvent {...props} view={viewParam} /> }}
         eventPropGetter={eventStyleGetter}
         style={{ height: viewParam === 'month' ? 'auto' : 650 }}
       />
