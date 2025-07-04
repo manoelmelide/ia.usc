@@ -1,67 +1,76 @@
 [
   {
-    "id": "entrega-proy1",
-    "courseId": "AprRef",
     "title": "Entrega Proyecto 1",
+    "courseId": "AprRef",
+    "tipo": "actividad",
     "subtipo": "Entrega",
+    "grupo": "todos",
+    "aula": "",
     "allDay": true,
-    "date": "2025-10-10"
+    "fecha": "2025-10-10"
   },
   {
-    "id": "test-lab2",
-    "courseId": "AprRef",
     "title": "Test Laboratorio 2",
+    "courseId": "AprRef",
+    "tipo": "actividad",
     "subtipo": "Test",
     "grupo": "G1",
     "aula": "IA 01",
     "allDay": true,
-    "date": "2025-10-15"
+    "fecha": "2025-10-15"
   },
   {
-    "id": "entrega-lab3",
-    "courseId": "VisComp",
     "title": "Entrega Laboratorio 3",
+    "courseId": "VisComp",
+    "tipo": "actividad",
     "subtipo": "Test",
+    "grupo": "todos",
+    "aula": "",
     "allDay": true,
-    "date": "2025-10-16"
+    "fecha": "2025-10-16"
   },
   {
-    "id": "pres-final",
-    "courseId": "VisComp",
     "title": "Presentación Final",
+    "courseId": "VisComp",
+    "tipo": "actividad",
     "subtipo": "Exposición",
+    "grupo": "todos",
+    "aula": "",
     "allDay": true,
-    "date": "2025-11-20",
+    "fecha": "2025-11-20",
     "deadline": "12:00"
   },
   {
     "title": "Exame TecLin",
+    "courseId": "TecLin",
     "tipo": "examen",
-    "convocatoria": "primera",
+    "subtipo": "Primera Conv.",
     "grupo": "todos",
     "aula": "Aula 301",
+    "allDay": false,
     "start": "2025-12-16T09:00:00",
-    "end": "2025-12-16T11:00:00",
-    "allDay": false
+    "end": "2025-12-16T11:00:00"
   },
   {
     "title": "Exame TecLin",
+    "courseId": "TecLin",
     "tipo": "examen",
-    "convocatoria": "segunda",
+    "subtipo": "Segunda Conv.",
     "grupo": "todos",
     "aula": "Aula 302",
+    "allDay": false,
     "start": "2026-01-15T09:00:00",
-    "end": "2026-01-15T11:00:00",
-    "allDay": false
+    "end": "2026-01-15T11:00:00"
   },
   {
     "title": "Exame VisComp",
+    "courseId": "VisComp",
     "tipo": "examen",
-    "convocatoria": "primera",
+    "subtipo": "Primera Conv.",
     "grupo": "todos",
     "aula": "Aula 201",
+    "allDay": false,
     "start": "2025-12-18T15:00:00",
-    "end": "2025-12-18T17:00:00",
-    "allDay": false
+    "end": "2025-12-18T17:00:00"
   }
 ]
