@@ -1,0 +1,38 @@
+[
+  {
+    "title": "AprRef",
+    "tipo": "clase",
+    "grupo": "todos",
+    "aula": "IA-03",
+    "start": "2025-09-08T15:30:00",
+    "end": "2025-09-08T17:00:00",
+    "allDay": false
+  },
+  {
+    "title": "ProInt II",
+    "tipo": "clase",
+    "grupo": "G1",
+    "aula": "IA-1.2",
+    "start": "2025-09-08T09:30:00",
+    "end": "2025-09-08T11:00:00",
+    "allDay": false
+  },
+  {
+    "title": "VisCom I",
+    "tipo": "clase",
+    "grupo": "G2",
+    "aula": "IA-1.3",
+    "start": "2025-09-08T09:30:00",
+    "end": "2025-09-08T11:00:00",
+    "allDay": false
+  },
+  {
+    "title": "VisCom I",
+    "tipo": "clase",
+    "grupo": "todos",
+    "aula": "IA-03",
+    "start": "2025-09-08T17:30:00",
+    "end": "2025-09-08T20:00:00",
+    "allDay": false
+  }
+]
